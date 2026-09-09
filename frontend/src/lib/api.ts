@@ -57,3 +57,54 @@ export async function fetchMember(id: number): Promise<Member> {
   if (!res.ok) throw new ApiError(res.status === 404 ? 'Member not found' : 'Failed to load member', res.status)
   return res.json()
 }
+
+export interface AdminMember {
+  id: number
+  tag_id: string
+  name: string
+  points_balance: number
+  current_streak: number
+  longest_streak: number
+  last_tap_date: string | null
+  created_at: string
+}
+
+function adminHeaders(token: string): HeadersInit {
+  return { 'Content-Type': 'application/json', 'X-Admin-Token': token }
+}
+
+async function parseAdminResponse<T>(res: Response): Promise<T> {
+  if (res.status === 401) throw new ApiError('Invalid admin token', 401)
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    throw new ApiError(body?.detail ?? 'Request failed', res.status)
+  }
+  return res.json()
+}
+
+export async function adminListMembers(token: string): Promise<AdminMember[]> {
+  const res = await fetch(`${API_BASE_URL}/admin/members`, { headers: adminHeaders(token) })
+  return parseAdminResponse(res)
+}
+
+export async function adminEnrollMember(token: string, tagId: string, name: string): Promise<AdminMember> {
+  const res = await fetch(`${API_BASE_URL}/admin/members`, {
+    method: 'POST',
+    headers: adminHeaders(token),
+    body: JSON.stringify({ tag_id: tagId, name }),
+  })
+  return parseAdminResponse(res)
+}
+
+export async function adminAdjustMember(
+  token: string,
+  id: number,
+  changes: { points_balance?: number; current_streak?: number },
+): Promise<AdminMember> {
+  const res = await fetch(`${API_BASE_URL}/admin/members/${id}`, {
+    method: 'PATCH',
+    headers: adminHeaders(token),
+    body: JSON.stringify(changes),
+  })
+  return parseAdminResponse(res)
+}

@@ -21,6 +21,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-makerspace}:${POSTGRES_PASSWORD:-makerspace}@db:5432/${POSTGRES_DB:-makerspace_xp}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-changeme}
     depends_on:
       db:
         condition: service_healthy

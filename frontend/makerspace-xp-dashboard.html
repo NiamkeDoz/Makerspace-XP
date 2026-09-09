@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Makerspace member dashboard</title>
+<style>
+  body {
+    background: #16181C;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+    margin: 0;
+  }
+  .card {
+    max-width: 380px;
+    width: 100%;
+    color: #EDEAE3;
+  }
+  .surface {
+    background: #1F2226;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 12px;
+  }
+  .muted { color: #8B8F94; }
+  .row { display: flex; justify-content: space-between; align-items: center; }
+  .bar-track {
+    height: 12px;
+    border-radius: 8px;
+    background: #16181C;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 8px;
+    transition: width 900ms ease-out;
+  }
+  .xp-fill { background: #E8A33D; }
+  .streak-fill { background: #4FA8A0; }
+  .grid2 {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-num { font-size: 24px; font-weight: 600; margin: 0; }
+  .stat-label { font-size: 13px; margin: 0 0 4px; color: #8B8F94; }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #E8A33D; color: #412402;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 14px;
+  }
+  .pill {
+    font-size: 12px; padding: 4px 10px; border-radius: 8px;
+    background: #33291a; color: #E8A33D;
+  }
+  .badge-tile {
+    flex: 1; text-align: center; background: #1F2226;
+    border-radius: 8px; padding: 10px 4px;
+  }
+  .badge-icon { font-size: 20px; }
+  .badge-label { font-size: 11px; margin: 6px 0 0; color: #8B8F94; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="row" style="margin-bottom:16px; gap:12px;">
+    <div class="avatar">JS</div>
+    <div style="flex:1;">
+      <p style="font-weight:600; font-size:15px; margin:0;">Scoot</p>
+      <p class="muted" style="font-size:13px; margin:0;">Prestige I · Level 7</p>
+    </div>
+    <div class="pill">Machinist</div>
+  </div>
+
+  <div class="surface">
+    <div class="row muted" style="font-size:13px; margin-bottom:8px;">
+      <span>Level 7</span>
+      <span>2,150 / 3,320 xp</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill xp-fill" id="xp-fill"></div></div>
+    <p class="muted" style="font-size:12px; margin:8px 0 0;">1,170 xp to level 8</p>
+  </div>
+
+  <div class="surface">
+    <div class="row muted" style="font-size:13px; margin-bottom:8px;">
+      <span>&#128293; Current streak</span>
+      <span>18 days</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill streak-fill" id="streak-fill"></div></div>
+    <p class="muted" style="font-size:12px; margin:8px 0 0;">12 days to next milestone badge</p>
+  </div>
+
+  <div class="grid2">
+    <div class="surface" style="margin-bottom:0;">
+      <p class="stat-label">Points balance</p>
+      <p class="stat-num">4,280</p>
+    </div>
+    <div class="surface" style="margin-bottom:0;">
+      <p class="stat-label">Longest streak</p>
+      <p class="stat-num">41 days</p>
+    </div>
+    <div class="surface" style="margin-bottom:0;">
+      <p class="stat-label">Total visits</p>
+      <p class="stat-num">312</p>
+    </div>
+    <div class="surface" style="margin-bottom:0;">
+      <p class="stat-label">Projects logged</p>
+      <p class="stat-num">9</p>
+    </div>
+  </div>
+
+  <p class="muted" style="font-size:13px; margin:0 0 8px;">Recent badges</p>
+  <div style="display:flex; gap:10px;">
+    <div class="badge-tile">
+      <div class="badge-icon">&#9889;</div>
+      <p class="badge-label">High voltage</p>
+    </div>
+    <div class="badge-tile">
+      <div class="badge-icon">&#128293;</div>
+      <p class="badge-label">Wildfire</p>
+    </div>
+    <div class="badge-tile">
+      <div class="badge-icon">&#128295;</div>
+      <p class="badge-label">Machinist</p>
+    </div>
+  </div>
+</div>
+<script>
+  setTimeout(function () {
+    document.getElementById('xp-fill').style.width = '65%';
+    document.getElementById('streak-fill').style.width = '60%';
+  }, 100);
+</script>
+</body>
+</html>

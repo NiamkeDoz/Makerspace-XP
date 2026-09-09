@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { AdminPanel } from './components/AdminPanel'
 import { Leaderboard } from './components/Leaderboard'
 import { MemberLookup } from './components/MemberLookup'
 import { checkHealth } from './lib/api'
@@ -30,9 +31,10 @@ function App() {
         </div>
       </header>
 
-      <main className="mx-auto flex max-w-lg flex-col gap-10">
+      <main className="mx-auto flex max-w-2xl flex-col items-center gap-10">
         <Leaderboard />
         <MemberLookup />
+        <AdminPanel />
       </main>
     </div>
   )
