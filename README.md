@@ -7,6 +7,7 @@ Full design notes: see the Obsidian vault under `Leisure/Macon MakeWell/Arduino 
 ## Stack
 - ESP32 + PN532 NFC reader → FastAPI backend (HTTP POST)
 - Postgres
+- React (Vite + TypeScript + Tailwind) frontend
 - Docker Compose for local/LAN deployment
 
 ## Status: Attendance MVP
@@ -15,18 +16,22 @@ Implemented so far:
 - `members` / `taps` tables (Alembic-managed)
 - `POST /taps` — records a tap, dedupes per day per member, computes streak + points via a config-driven rules table (`backend/app/rules.py`)
 - `GET /health`
+- Frontend scaffold that pings the API's health check
 
-Not yet built: enrollment flow for unknown tags, kiosk websocket, badges, member web app, ESP32 firmware.
+Not yet built: enrollment flow for unknown tags, kiosk websocket, badges, member dashboard/leaderboard UI, ESP32 firmware.
 
 ## Running locally
 
 ```bash
 cp .env.example .env
+cp frontend/.env.example frontend/.env
 docker compose up -d --build
 docker compose exec api alembic upgrade head
 ```
 
-API available at `http://localhost:8000`. Postgres exposed on `5432` for local inspection.
+- API: `http://localhost:8000`
+- Frontend: `http://localhost:5174` (mapped off Vite's default 5173, which may be in use by another local project)
+- Postgres exposed on `5432` for local inspection.
 
 ### Enrolling a member manually (no enrollment endpoint yet)
 
