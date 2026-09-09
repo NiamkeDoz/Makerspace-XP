@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Leaderboard } from './components/Leaderboard'
+import { MemberLookup } from './components/MemberLookup'
 import { checkHealth } from './lib/api'
 
 function App() {
@@ -9,23 +11,29 @@ function App() {
   }, [])
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4 text-center">
-      <h1 className="text-4xl font-semibold tracking-tight">Makerspace XP</h1>
-      <p className="text-neutral-400">Member dashboard — under construction.</p>
-      <div className="flex items-center gap-2 text-sm">
-        <span
-          className={`h-2 w-2 rounded-full ${
-            apiOnline === null
-              ? 'bg-neutral-600'
-              : apiOnline
-                ? 'bg-emerald-500'
-                : 'bg-red-500'
-          }`}
-        />
-        <span className="text-neutral-400">
-          {apiOnline === null ? 'Checking API…' : apiOnline ? 'API online' : 'API unreachable'}
-        </span>
-      </div>
+    <div className="min-h-screen px-4 py-10">
+      <header className="mb-8 flex flex-col items-center gap-2 text-center">
+        <h1 className="text-4xl font-semibold tracking-tight">Makerspace XP</h1>
+        <div className="flex items-center gap-2 text-sm">
+          <span
+            className={`h-2 w-2 rounded-full ${
+              apiOnline === null
+                ? 'bg-neutral-600'
+                : apiOnline
+                  ? 'bg-emerald-500'
+                  : 'bg-red-500'
+            }`}
+          />
+          <span className="text-neutral-400">
+            {apiOnline === null ? 'Checking API…' : apiOnline ? 'API online' : 'API unreachable'}
+          </span>
+        </div>
+      </header>
+
+      <main className="mx-auto flex max-w-lg flex-col gap-10">
+        <Leaderboard />
+        <MemberLookup />
+      </main>
     </div>
   )
 }
