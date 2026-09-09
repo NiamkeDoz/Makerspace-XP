@@ -15,10 +15,12 @@ Full design notes: see the Obsidian vault under `Leisure/Macon MakeWell/Arduino 
 Implemented so far:
 - `members` / `taps` tables (Alembic-managed)
 - `POST /taps` — records a tap, dedupes per day per member, computes streak + points via a config-driven rules table (`backend/app/rules.py`)
+- `GET /members/{id}`, `GET /leaderboard`
+- `/admin/members` (list, enroll, adjust points/streak) — token-protected, see Admin panel below
 - `GET /health`
-- Frontend scaffold that pings the API's health check
+- React frontend: leaderboard, member lookup, admin panel — all wired to live API data
 
-Not yet built: enrollment flow for unknown tags, kiosk websocket, badges, member dashboard/leaderboard UI, ESP32 firmware.
+Not yet built: enrollment flow for unknown tags at tap-time (kiosk-side), kiosk websocket, XP/leveling, badges, ESP32 firmware.
 
 ## Running locally
 
@@ -33,12 +35,17 @@ docker compose exec api alembic upgrade head
 - Frontend: `http://localhost:5174` (mapped off Vite's default 5173, which may be in use by another local project)
 - Postgres exposed on `5432` for local inspection.
 
-### Enrolling a member manually (no enrollment endpoint yet)
+### Admin panel
+
+Visit the frontend and unlock the "Admin" section with `ADMIN_TOKEN` (from `.env`, defaults to `changeme` — change this before real use). From there you can enroll members by tag ID and adjust points/streaks by hand.
+
+### Seeding test data
 
 ```bash
-docker compose exec db psql -U makerspace -d makerspace_xp \
-  -c "INSERT INTO members (tag_id, name, points_balance, current_streak, longest_streak) VALUES ('<tag_id>', '<name>', 0, 0, 0);"
+docker compose exec -T db psql -U makerspace -d makerspace_xp < backend/seed_data.sql
 ```
+
+Wipes existing members/taps and inserts 8 sample members with varied points, streaks, and tap history for testing the leaderboard/dashboard against realistic data.
 
 ### Creating a new migration
 
