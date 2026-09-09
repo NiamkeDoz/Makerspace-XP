@@ -1,6 +1,28 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from pydantic import BaseModel
+
+
+class MemberOut(BaseModel):
+    id: int
+    name: str
+    points_balance: int
+    current_streak: int
+    longest_streak: int
+    last_tap_date: date | None
+    total_visits: int
+    member_since: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LeaderboardEntry(BaseModel):
+    rank: int
+    member_id: int
+    name: str
+    points_balance: int
+    current_streak: int
 
 
 class TapIn(BaseModel):

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import taps
+from app.routers import leaderboard, members, taps
 
 app = FastAPI(title="Makerspace XP")
 
@@ -13,6 +13,8 @@ app.add_middleware(
 )
 
 app.include_router(taps.router)
+app.include_router(members.router)
+app.include_router(leaderboard.router)
 
 
 @app.get("/health")
