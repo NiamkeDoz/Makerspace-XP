@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models import Member, Tap
@@ -9,16 +10,32 @@ from app.schemas import TapIn, TapResult
 
 def record_tap(db: Session, tap_in: TapIn) -> TapResult:
     member = db.query(Member).filter(Member.tag_id == tap_in.tag_id).one_or_none()
+    enrolled = False
+
     if member is None:
-        return TapResult(status="unknown_tag")
+        if not tap_in.name:
+            return TapResult(status="unknown_tag")
+
+        member = Member(tag_id=tap_in.tag_id, name=tap_in.name)
+        db.add(member)
+        try:
+            db.flush()
+        except IntegrityError:
+            # Tag was registered by a concurrent request between the lookup and this insert.
+            db.rollback()
+            member = db.query(Member).filter(Member.tag_id == tap_in.tag_id).one()
+        else:
+            enrolled = True
 
     tap_time = tap_in.timestamp or datetime.utcnow()
     tap_day = tap_time.date()
 
     if member.last_tap_date == tap_day:
+        db.commit()
         return TapResult(
             status="duplicate",
             member_id=member.id,
+            name=member.name,
             points_awarded=0,
             points_balance=member.points_balance,
             current_streak=member.current_streak,
@@ -41,8 +58,9 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
     db.refresh(member)
 
     return TapResult(
-        status="recorded",
+        status="enrolled" if enrolled else "recorded",
         member_id=member.id,
+        name=member.name,
         points_awarded=points,
         points_balance=member.points_balance,
         current_streak=member.current_streak,

@@ -1,12 +1,23 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
 export interface TapResult {
-  status: 'recorded' | 'duplicate' | 'unknown_tag'
+  status: 'recorded' | 'duplicate' | 'unknown_tag' | 'enrolled'
   member_id: number | null
+  name: string | null
   points_awarded: number
   points_balance: number | null
   current_streak: number | null
   longest_streak: number | null
+}
+
+export async function submitTap(tagId: string, readerId: string, name?: string): Promise<TapResult> {
+  const res = await fetch(`${API_BASE_URL}/taps`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tag_id: tagId, reader_id: readerId, name: name || undefined }),
+  })
+  if (!res.ok) throw new ApiError('Tap failed', res.status)
+  return res.json()
 }
 
 export interface Member {

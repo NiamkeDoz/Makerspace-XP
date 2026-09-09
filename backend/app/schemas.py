@@ -53,11 +53,13 @@ class TapIn(BaseModel):
     tag_id: str
     reader_id: str
     timestamp: datetime | None = None
+    name: str | None = None  # supplied by the kiosk once, after an unknown_tag response
 
 
 class TapResult(BaseModel):
-    status: str  # "recorded" | "duplicate" | "unknown_tag"
+    status: str  # "recorded" | "duplicate" | "unknown_tag" | "enrolled"
     member_id: int | None = None
+    name: str | None = None
     points_awarded: int = 0
     points_balance: int | None = None
     current_streak: int | None = None
