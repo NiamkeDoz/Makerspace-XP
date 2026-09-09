@@ -9,6 +9,13 @@ class MemberOut(BaseModel):
     points_balance: int
     current_streak: int
     longest_streak: int
+    level: int
+    xp: int
+    xp_to_next: int | None
+    xp_into_level: int
+    xp_for_level: int | None
+    lifetime_xp: int
+    prestige_count: int
     last_tap_date: date | None
     total_visits: int
     member_since: datetime
@@ -32,6 +39,10 @@ class AdminMemberOut(BaseModel):
     points_balance: int
     current_streak: int
     longest_streak: int
+    level: int
+    xp: int
+    lifetime_xp: int
+    prestige_count: int
     last_tap_date: date | None
     created_at: datetime
 
@@ -64,3 +75,6 @@ class TapResult(BaseModel):
     points_balance: int | None = None
     current_streak: int | None = None
     longest_streak: int | None = None
+    xp_awarded: int = 0
+    level: int | None = None
+    leveled_up: bool = False

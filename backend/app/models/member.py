@@ -15,6 +15,10 @@ class Member(Base):
     points_balance: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     current_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     longest_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    xp: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # earned since last prestige; drives level
+    level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
+    lifetime_xp: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # survives prestige resets
+    prestige_count: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     last_tap_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 

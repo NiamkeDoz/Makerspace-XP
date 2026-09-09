@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.models import Member, Tap
 from app.rules import points_for_streak
 from app.schemas import TapIn, TapResult
+from app.xp_rules import level_for_xp
 
 
 def record_tap(db: Session, tap_in: TapIn) -> TapResult:
@@ -40,6 +41,9 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
             points_balance=member.points_balance,
             current_streak=member.current_streak,
             longest_streak=member.longest_streak,
+            xp_awarded=0,
+            level=member.level,
+            leveled_up=False,
         )
 
     if member.last_tap_date == tap_day - timedelta(days=1):
@@ -53,6 +57,14 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
     points = points_for_streak(member.current_streak)
     member.points_balance += points
 
+    # Tap-in earns points and XP at the same rate (per the project's XP earning table).
+    xp_earned = points
+    member.xp += xp_earned
+    member.lifetime_xp += xp_earned
+    previous_level = member.level
+    member.level = level_for_xp(member.xp)
+    leveled_up = member.level > previous_level
+
     db.add(Tap(member_id=member.id, reader_id=tap_in.reader_id, timestamp=tap_time, points_awarded=points))
     db.commit()
     db.refresh(member)
@@ -65,4 +77,7 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
         points_balance=member.points_balance,
         current_streak=member.current_streak,
         longest_streak=member.longest_streak,
+        xp_awarded=xp_earned,
+        level=member.level,
+        leveled_up=leveled_up,
     )

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import Member, Tap
 from app.schemas import MemberOut
+from app.xp_rules import xp_for_level, xp_into_level, xp_to_next_level
 
 router = APIRouter(prefix="/members", tags=["members"])
 
@@ -23,6 +24,13 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
         points_balance=member.points_balance,
         current_streak=member.current_streak,
         longest_streak=member.longest_streak,
+        level=member.level,
+        xp=member.xp,
+        xp_to_next=xp_to_next_level(member.xp, member.level),
+        xp_into_level=xp_into_level(member.xp, member.level),
+        xp_for_level=xp_for_level(member.level),
+        lifetime_xp=member.lifetime_xp,
+        prestige_count=member.prestige_count,
         last_tap_date=member.last_tap_date,
         total_visits=total_visits,
         member_since=member.created_at,

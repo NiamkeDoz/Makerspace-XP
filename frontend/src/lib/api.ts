@@ -26,6 +26,13 @@ export interface Member {
   points_balance: number
   current_streak: number
   longest_streak: number
+  level: number
+  xp: number
+  xp_to_next: number | null
+  xp_into_level: number
+  xp_for_level: number | null
+  lifetime_xp: number
+  prestige_count: number
   last_tap_date: string | null
   total_visits: number
   member_since: string
@@ -76,6 +83,10 @@ export interface AdminMember {
   points_balance: number
   current_streak: number
   longest_streak: number
+  level: number
+  xp: number
+  lifetime_xp: number
+  prestige_count: number
   last_tap_date: string | null
   created_at: string
 }
@@ -116,6 +127,14 @@ export async function adminAdjustMember(
     method: 'PATCH',
     headers: adminHeaders(token),
     body: JSON.stringify(changes),
+  })
+  return parseAdminResponse(res)
+}
+
+export async function adminPrestigeMember(token: string, id: number): Promise<AdminMember> {
+  const res = await fetch(`${API_BASE_URL}/admin/members/${id}/prestige`, {
+    method: 'POST',
+    headers: adminHeaders(token),
   })
   return parseAdminResponse(res)
 }

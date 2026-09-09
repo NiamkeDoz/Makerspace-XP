@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { AdminPanel } from './components/AdminPanel'
 import { Leaderboard } from './components/Leaderboard'
-import { MemberLookup } from './components/MemberLookup'
+import { MemberDashboard } from './components/MemberDashboard'
 import { TapSimulator } from './components/TapSimulator'
 import { checkHealth } from './lib/api'
 
@@ -35,7 +35,7 @@ function App() {
       <main className="mx-auto flex max-w-2xl flex-col items-center gap-10">
         <Leaderboard />
         <TapSimulator />
-        <MemberLookup />
+        <MemberDashboard />
         <AdminPanel />
       </main>
     </div>
