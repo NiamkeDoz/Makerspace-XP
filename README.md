@@ -31,7 +31,7 @@ docker compose up -d --build
 docker compose exec api alembic upgrade head
 ```
 
-- API: `http://localhost:8000`
+- API: `http://localhost:8000` — interactive docs at `/docs` (Swagger) or `/redoc`; narrative API reference is in the Obsidian vault (`Arduino Club/Makespace-XP/api-reference.md`)
 - Frontend: `http://localhost:5174` (mapped off Vite's default 5173, which may be in use by another local project)
 - Postgres exposed on `5432` for local inspection.
 
