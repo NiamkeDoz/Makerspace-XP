@@ -1,6 +1,7 @@
--- Test/demo data for local development. Wipes existing members/taps first.
+-- Test/demo data for local development. Wipes existing members/taps/visits first.
 -- Run with: docker compose exec -T db psql -U makerspace -d makerspace_xp < backend/seed_data.sql
 
+DELETE FROM visits;
 DELETE FROM taps;
 DELETE FROM members;
 
@@ -31,3 +32,10 @@ CROSS JOIN generate_series(1, CASE m.tag_id
   ELSE 1
 END) AS n
 WHERE m.tag_id IN ('tag-alice','tag-bob','tag-carol','tag-dana','tag-eli','tag-farah','tag-grant','tag-hana');
+
+-- A closed visit (check-in + check-out) per seeded tap, so total_visits has real data.
+-- All seeded visits are closed (nobody "currently in") — use the Tap Simulator to test
+-- live occupancy instead of faking an open session here.
+INSERT INTO visits (member_id, check_in, check_in_reader_id, check_out, check_out_reader_id)
+SELECT member_id, timestamp, reader_id, timestamp + interval '45 minutes', reader_id
+FROM taps;

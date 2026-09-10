@@ -1,13 +1,26 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
 export interface TapResult {
-  status: 'recorded' | 'duplicate' | 'unknown_tag' | 'enrolled'
+  status: 'recorded' | 'duplicate' | 'unknown_tag' | 'enrolled' | 'checked_out'
   member_id: number | null
   name: string | null
   points_awarded: number
   points_balance: number | null
   current_streak: number | null
   longest_streak: number | null
+}
+
+export interface OccupancyEntry {
+  member_id: number
+  name: string
+  check_in: string
+  check_in_reader_id: string
+}
+
+export async function fetchOccupancy(): Promise<OccupancyEntry[]> {
+  const res = await fetch(`${API_BASE_URL}/occupancy`)
+  if (!res.ok) throw new ApiError('Failed to load occupancy', res.status)
+  return res.json()
 }
 
 export async function submitTap(tagId: string, readerId: string, name?: string): Promise<TapResult> {

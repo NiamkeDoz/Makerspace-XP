@@ -3,10 +3,22 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.models import Member, Tap
+from app.models import Member, Tap, Visit
 from app.rules import points_for_streak
 from app.schemas import TapIn, TapResult
 from app.xp_rules import level_for_xp
+
+
+def _member_snapshot(member: Member, **overrides) -> dict:
+    return {
+        "member_id": member.id,
+        "name": member.name,
+        "points_balance": member.points_balance,
+        "current_streak": member.current_streak,
+        "longest_streak": member.longest_streak,
+        "level": member.level,
+        **overrides,
+    }
 
 
 def record_tap(db: Session, tap_in: TapIn) -> TapResult:
@@ -31,20 +43,26 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
     tap_time = tap_in.timestamp or datetime.utcnow()
     tap_day = tap_time.date()
 
-    if member.last_tap_date == tap_day:
+    open_visit = db.query(Visit).filter(Visit.member_id == member.id, Visit.check_out.is_(None)).one_or_none()
+
+    if open_visit is not None:
+        # This tap closes the member's open session (check-out). No XP/points either way.
+        open_visit.check_out = tap_time
+        open_visit.check_out_reader_id = tap_in.reader_id
+        db.add(Tap(member_id=member.id, reader_id=tap_in.reader_id, timestamp=tap_time, points_awarded=0, direction="out"))
         db.commit()
-        return TapResult(
-            status="duplicate",
-            member_id=member.id,
-            name=member.name,
-            points_awarded=0,
-            points_balance=member.points_balance,
-            current_streak=member.current_streak,
-            longest_streak=member.longest_streak,
-            xp_awarded=0,
-            level=member.level,
-            leveled_up=False,
-        )
+        db.refresh(member)
+        return TapResult(status="checked_out", **_member_snapshot(member))
+
+    # No open session: this tap is a check-in. Always opens a new visit, regardless of
+    # whether points/XP were already earned today.
+    db.add(Visit(member_id=member.id, check_in=tap_time, check_in_reader_id=tap_in.reader_id))
+
+    if member.last_tap_date == tap_day:
+        db.add(Tap(member_id=member.id, reader_id=tap_in.reader_id, timestamp=tap_time, points_awarded=0, direction="in"))
+        db.commit()
+        db.refresh(member)
+        return TapResult(status="duplicate", **_member_snapshot(member), xp_awarded=0, leveled_up=False)
 
     if member.last_tap_date == tap_day - timedelta(days=1):
         member.current_streak += 1
@@ -65,19 +83,14 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
     member.level = level_for_xp(member.xp)
     leveled_up = member.level > previous_level
 
-    db.add(Tap(member_id=member.id, reader_id=tap_in.reader_id, timestamp=tap_time, points_awarded=points))
+    db.add(Tap(member_id=member.id, reader_id=tap_in.reader_id, timestamp=tap_time, points_awarded=points, direction="in"))
     db.commit()
     db.refresh(member)
 
     return TapResult(
         status="enrolled" if enrolled else "recorded",
-        member_id=member.id,
-        name=member.name,
+        **_member_snapshot(member),
         points_awarded=points,
-        points_balance=member.points_balance,
-        current_streak=member.current_streak,
-        longest_streak=member.longest_streak,
         xp_awarded=xp_earned,
-        level=member.level,
         leveled_up=leveled_up,
     )

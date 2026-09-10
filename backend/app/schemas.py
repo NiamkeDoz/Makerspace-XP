@@ -68,7 +68,7 @@ class TapIn(BaseModel):
 
 
 class TapResult(BaseModel):
-    status: str  # "recorded" | "duplicate" | "unknown_tag" | "enrolled"
+    status: str  # "recorded" | "duplicate" | "unknown_tag" | "enrolled" | "checked_out"
     member_id: int | None = None
     name: str | None = None
     points_awarded: int = 0
@@ -78,3 +78,10 @@ class TapResult(BaseModel):
     xp_awarded: int = 0
     level: int | None = None
     leveled_up: bool = False
+
+
+class OccupancyEntry(BaseModel):
+    member_id: int
+    name: str
+    check_in: datetime
+    check_in_reader_id: str

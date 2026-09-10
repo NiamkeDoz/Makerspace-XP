@@ -14,5 +14,6 @@ class Tap(Base):
     reader_id: Mapped[str] = mapped_column(String, nullable=False)
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     points_awarded: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    direction: Mapped[str] = mapped_column(String, default="in", nullable=False)  # "in" | "out"
 
     member = relationship("Member", back_populates="taps")

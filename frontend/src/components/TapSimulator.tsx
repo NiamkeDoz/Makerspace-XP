@@ -44,10 +44,11 @@ export function TapSimulator() {
   }
 
   const statusCopy: Record<string, string> = {
-    recorded: 'Tap recorded.',
-    duplicate: 'Already tapped in today.',
-    enrolled: 'New member enrolled and tap recorded.',
+    recorded: 'Checked in.',
+    duplicate: 'Checked in (already earned today’s points).',
+    enrolled: 'New member enrolled and checked in.',
     unknown_tag: 'Unknown tag — enter a name to enroll.',
+    checked_out: 'Checked out.',
   }
 
   return (

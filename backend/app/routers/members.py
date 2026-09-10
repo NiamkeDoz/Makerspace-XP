@@ -3,7 +3,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Member, Tap
+from app.models import Member, Visit
 from app.schemas import MemberOut
 from app.xp_rules import xp_for_level, xp_into_level, xp_to_next_level
 
@@ -16,7 +16,7 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
 
-    total_visits = db.query(func.count(Tap.id)).filter(Tap.member_id == member.id).scalar()
+    total_visits = db.query(func.count(Visit.id)).filter(Visit.member_id == member.id).scalar()
 
     return MemberOut(
         id=member.id,
