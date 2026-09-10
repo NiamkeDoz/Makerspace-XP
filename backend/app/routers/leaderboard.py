@@ -8,8 +8,12 @@ from app.schemas import LeaderboardEntry
 router = APIRouter(prefix="/leaderboard", tags=["leaderboard"])
 
 
-@router.get("", response_model=list[LeaderboardEntry])
-def get_leaderboard(limit: int = Query(default=25, ge=1, le=100), db: Session = Depends(get_db)):
+@router.get("", response_model=list[LeaderboardEntry], summary="Ranked leaderboard by points")
+def get_leaderboard(
+    limit: int = Query(default=25, ge=1, le=100, description="Max entries to return (1-100)."),
+    db: Session = Depends(get_db),
+):
+    """Members ranked by `points_balance` descending, ties broken by member ID."""
     members = (
         db.query(Member)
         .order_by(Member.points_balance.desc(), Member.id.asc())

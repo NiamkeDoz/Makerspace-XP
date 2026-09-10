@@ -10,8 +10,16 @@ from app.xp_rules import xp_for_level, xp_into_level, xp_to_next_level
 router = APIRouter(prefix="/members", tags=["members"])
 
 
-@router.get("/{member_id}", response_model=MemberOut)
+@router.get("/{member_id}", response_model=MemberOut, summary="Get a member's full profile")
 def get_member(member_id: int, db: Session = Depends(get_db)):
+    """
+    Full profile for one member — what the Member Dashboard page renders.
+
+    `xp` is cumulative since the last prestige (drives `level`); `lifetime_xp` survives
+    prestige resets. `xp_into_level`/`xp_for_level` are the numerator/denominator for a level
+    progress bar (`xp_for_level` is `null` at max level). `total_visits` counts closed + open
+    check-in/check-out **visits**, not raw tap rows.
+    """
     member = db.get(Member, member_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")

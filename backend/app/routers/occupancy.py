@@ -8,8 +8,13 @@ from app.schemas import OccupancyEntry
 router = APIRouter(prefix="/occupancy", tags=["occupancy"])
 
 
-@router.get("", response_model=list[OccupancyEntry])
+@router.get("", response_model=list[OccupancyEntry], summary="Who's currently checked in")
 def get_occupancy(db: Session = Depends(get_db)):
+    """
+    Everyone with an open visit (checked in but hasn't checked out yet). Powers the
+    "Currently In" panel on the home page, which polls this every 5 seconds. Not paginated —
+    expected to stay small, bounded by how many people can physically be in the space at once.
+    """
     open_visits = (
         db.query(Visit, Member.name)
         .join(Member, Member.id == Visit.member_id)

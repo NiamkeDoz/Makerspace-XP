@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class MemberOut(BaseModel):
@@ -10,14 +10,16 @@ class MemberOut(BaseModel):
     current_streak: int
     longest_streak: int
     level: int
-    xp: int
-    xp_to_next: int | None
-    xp_into_level: int
-    xp_for_level: int | None
-    lifetime_xp: int
+    xp: int = Field(description="XP earned since the last prestige; drives `level`.")
+    xp_to_next: int | None = Field(description="XP needed to reach the next level. `null` at max level.")
+    xp_into_level: int = Field(description="XP earned within the current level (numerator for a progress bar).")
+    xp_for_level: int | None = Field(
+        description="Total XP span required to complete the current level (denominator for a progress bar). `null` at max level."
+    )
+    lifetime_xp: int = Field(description="Total XP earned across all time; survives prestige resets.")
     prestige_count: int
     last_tap_date: date | None
-    total_visits: int
+    total_visits: int = Field(description="Count of check-in/check-out visits, not raw tap rows.")
     member_since: datetime
 
     class Config:
@@ -56,19 +58,25 @@ class AdminEnrollIn(BaseModel):
 
 
 class AdminAdjustIn(BaseModel):
-    points_balance: int | None = None
-    current_streak: int | None = None
+    points_balance: int | None = Field(default=None, description="New points balance. Omit to leave unchanged.")
+    current_streak: int | None = Field(
+        default=None,
+        description="New current streak (days). Also raises longest_streak if this exceeds it. Omit to leave unchanged.",
+    )
 
 
 class TapIn(BaseModel):
-    tag_id: str
-    reader_id: str
-    timestamp: datetime | None = None
-    name: str | None = None  # supplied by the kiosk once, after an unknown_tag response
+    tag_id: str = Field(description="The NFC tag's unique identifier.")
+    reader_id: str = Field(description="Which physical reader/door this tap came from.")
+    timestamp: datetime | None = Field(default=None, description="Defaults to now if omitted.")
+    name: str | None = Field(
+        default=None,
+        description="Name for a new member. Only used when `tag_id` is unrecognized — supplied by the kiosk after an `unknown_tag` response.",
+    )
 
 
 class TapResult(BaseModel):
-    status: str  # "recorded" | "duplicate" | "unknown_tag" | "enrolled" | "checked_out"
+    status: str = Field(description='One of: "recorded" | "duplicate" | "unknown_tag" | "enrolled" | "checked_out".')
     member_id: int | None = None
     name: str | None = None
     points_awarded: int = 0
@@ -77,7 +85,7 @@ class TapResult(BaseModel):
     longest_streak: int | None = None
     xp_awarded: int = 0
     level: int | None = None
-    leveled_up: bool = False
+    leveled_up: bool = Field(default=False, description="True if this tap crossed a level threshold.")
 
 
 class OccupancyEntry(BaseModel):

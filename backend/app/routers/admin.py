@@ -8,16 +8,29 @@ from app.models import Member
 from app.schemas import AdminAdjustIn, AdminEnrollIn, AdminMemberOut
 from app.xp_rules import MAX_LEVEL
 
-router = APIRouter(prefix="/admin", tags=["admin"], dependencies=[Depends(require_admin)])
+# All routes below require an X-Admin-Token header matching the server's ADMIN_TOKEN.
+# Missing/wrong token -> 401 (or 422 if the header is omitted entirely).
+router = APIRouter(
+    prefix="/admin",
+    tags=["admin"],
+    dependencies=[Depends(require_admin)],
+)
 
 
-@router.get("/members", response_model=list[AdminMemberOut])
+@router.get("/members", response_model=list[AdminMemberOut], summary="List all members (admin)")
 def list_members(db: Session = Depends(get_db)):
+    """All members, alphabetical by name, including fields not exposed publicly (`tag_id`, `created_at`)."""
     return db.query(Member).order_by(Member.name.asc()).all()
 
 
-@router.post("/members", response_model=AdminMemberOut, status_code=201)
+@router.post(
+    "/members",
+    response_model=AdminMemberOut,
+    status_code=201,
+    summary="Manually enroll a member (admin)",
+)
 def enroll_member(body: AdminEnrollIn, db: Session = Depends(get_db)):
+    """Enroll a member without a physical tap — e.g. pre-registering someone ahead of time."""
     member = Member(tag_id=body.tag_id, name=body.name)
     db.add(member)
     try:
@@ -29,8 +42,18 @@ def enroll_member(body: AdminEnrollIn, db: Session = Depends(get_db)):
     return member
 
 
-@router.patch("/members/{member_id}", response_model=AdminMemberOut)
+@router.patch(
+    "/members/{member_id}",
+    response_model=AdminMemberOut,
+    summary="Correct a member's points/streak (admin)",
+)
 def adjust_member(member_id: int, body: AdminAdjustIn, db: Session = Depends(get_db)):
+    """
+    Manually fix a member's points or streak — for misfired readers, lost tags, or disputed
+    streaks, without touching SQL directly. Both fields optional; only provided fields change.
+    Setting `current_streak` also raises `longest_streak` if the new value exceeds it (never
+    lowers it).
+    """
     member = db.get(Member, member_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
@@ -46,8 +69,17 @@ def adjust_member(member_id: int, body: AdminAdjustIn, db: Session = Depends(get
     return member
 
 
-@router.post("/members/{member_id}/prestige", response_model=AdminMemberOut)
+@router.post(
+    "/members/{member_id}/prestige",
+    response_model=AdminMemberOut,
+    summary="Prestige a member at max level (admin)",
+)
 def prestige_member(member_id: int, db: Session = Depends(get_db)):
+    """
+    Resets a member from level 20 back to level 1 / 0 XP and increments `prestige_count`.
+    `points_balance`, streaks, and `lifetime_xp` are untouched by design — prestige is cosmetic
+    progression, not punishing. Requires the member to already be at max level.
+    """
     member = db.get(Member, member_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
