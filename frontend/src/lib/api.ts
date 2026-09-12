@@ -36,9 +36,12 @@ export async function submitTap(tagId: string, readerId: string, name?: string):
 export interface Badge {
   threshold: number
   name: string
+  earned_at: string
 }
 
-export interface NextBadge extends Badge {
+export interface NextBadge {
+  threshold: number
+  name: string
   remaining: number
 }
 

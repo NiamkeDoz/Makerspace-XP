@@ -142,7 +142,9 @@ export function MemberDashboard() {
 }
 
 function BadgeRow({ member }: { member: Member }) {
-  const earned = [...member.attendance_badges, ...member.streak_badges].sort((a, b) => b.threshold - a.threshold)
+  const earned = [...member.attendance_badges, ...member.streak_badges].sort(
+    (a, b) => new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime(),
+  )
   const next = [member.next_attendance_badge, member.next_streak_badge].filter((b): b is NonNullable<typeof b> => b !== null)
 
   if (earned.length === 0 && next.length === 0) return null
@@ -152,7 +154,7 @@ function BadgeRow({ member }: { member: Member }) {
       <p className="mb-3 text-sm text-neutral-400">Badges</p>
       <div className="flex flex-wrap gap-x-3 gap-y-4">
         {earned.map((badge: Badge) => (
-          <BadgeMedallion key={badge.name} name={badge.name} earned />
+          <BadgeMedallion key={badge.name} name={badge.name} earned caption={formatDate(badge.earned_at)} />
         ))}
         {next.map((badge) => (
           <BadgeMedallion key={badge.name} name={badge.name} earned={false} caption={`${badge.remaining} to go`} />
