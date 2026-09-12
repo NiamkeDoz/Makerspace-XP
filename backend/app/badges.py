@@ -33,6 +33,24 @@ STREAK_BADGES = [
 ]
 
 
+# (threshold in consecutive weeks with >=1 check-in, name) — a "month" is treated as 4 weeks,
+# so 12 months = 48 weeks (a clean approximation, not calendar-exact).
+WEEKLY_STREAK_BADGES = [
+    (4, "1-Month Streak"),
+    (8, "2-Month Streak"),
+    (12, "Quarter Streak"),
+    (16, "4-Month Streak"),
+    (20, "5-Month Streak"),
+    (24, "Half-Year Streak"),
+    (28, "7-Month Streak"),
+    (32, "8-Month Streak"),
+    (36, "Three-Quarter Streak"),
+    (40, "10-Month Streak"),
+    (44, "11-Month Streak"),
+    (48, "Year-Long Streak"),
+]
+
+
 def next_threshold(thresholds: list[tuple[int, str]], value: int) -> dict | None:
     for threshold, name in thresholds:
         if value < threshold:

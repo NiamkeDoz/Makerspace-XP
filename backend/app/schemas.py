@@ -19,7 +19,7 @@ class NextBadge(BaseModel):
 
 
 class CatalogBadge(BaseModel):
-    category: str = Field(description='"attendance" | "streak".')
+    category: str = Field(description='"attendance" | "streak" | "weekly_streak".')
     threshold: int
     name: str
     earned: bool
@@ -33,6 +33,8 @@ class MemberOut(BaseModel):
     points_balance: int
     current_streak: int
     longest_streak: int
+    current_weekly_streak: int = Field(description="Consecutive weeks (Mon-Sun) with at least one check-in.")
+    longest_weekly_streak: int = Field(description="Record consecutive weekly-check-in streak.")
     level: int
     xp: int = Field(description="XP earned since the last prestige; drives `level`.")
     xp_to_next: int | None = Field(description="XP needed to reach the next level. `null` at max level.")
@@ -47,8 +49,10 @@ class MemberOut(BaseModel):
     member_since: datetime
     attendance_badges: list[Badge] = Field(description="Attendance milestone badges earned, with earned_at timestamps.")
     streak_badges: list[Badge] = Field(description="Streak milestone badges earned, with earned_at timestamps.")
+    weekly_streak_badges: list[Badge] = Field(description="Weekly check-in streak badges earned (1-12 months).")
     next_attendance_badge: NextBadge | None = Field(description="Next unearned attendance badge, if any remain.")
     next_streak_badge: NextBadge | None = Field(description="Next unearned streak badge, if any remain.")
+    next_weekly_streak_badge: NextBadge | None = Field(description="Next unearned weekly-streak badge, if any remain.")
 
     class Config:
         from_attributes = True
@@ -111,6 +115,8 @@ class TapResult(BaseModel):
     points_balance: int | None = None
     current_streak: int | None = None
     longest_streak: int | None = None
+    current_weekly_streak: int | None = None
+    longest_weekly_streak: int | None = None
     xp_awarded: int = 0
     level: int | None = None
     leveled_up: bool = Field(default=False, description="True if this tap crossed a level threshold.")

@@ -51,6 +51,8 @@ export interface Member {
   points_balance: number
   current_streak: number
   longest_streak: number
+  current_weekly_streak: number
+  longest_weekly_streak: number
   level: number
   xp: number
   xp_to_next: number | null
@@ -63,8 +65,10 @@ export interface Member {
   member_since: string
   attendance_badges: Badge[]
   streak_badges: Badge[]
+  weekly_streak_badges: Badge[]
   next_attendance_badge: NextBadge | null
   next_streak_badge: NextBadge | null
+  next_weekly_streak_badge: NextBadge | null
 }
 
 export interface LeaderboardEntry {
@@ -106,7 +110,7 @@ export async function fetchMember(id: number): Promise<Member> {
 }
 
 export interface CatalogBadge {
-  category: 'attendance' | 'streak'
+  category: 'attendance' | 'streak' | 'weekly_streak'
   threshold: number
   name: string
   earned: boolean

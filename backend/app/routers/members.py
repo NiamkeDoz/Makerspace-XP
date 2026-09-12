@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.badges import ATTENDANCE_BADGES, STREAK_BADGES
+from app.badges import ATTENDANCE_BADGES, STREAK_BADGES, WEEKLY_STREAK_BADGES
 from app.badges import next_threshold as next_badge
 from app.database import get_db
 from app.models import Member, MemberBadge, Visit
@@ -20,7 +20,9 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
     `xp` is cumulative since the last prestige (drives `level`); `lifetime_xp` survives
     prestige resets. `xp_into_level`/`xp_for_level` are the numerator/denominator for a level
     progress bar (`xp_for_level` is `null` at max level). `total_visits` counts closed + open
-    check-in/check-out **visits**, not raw tap rows.
+    check-in/check-out **visits**, not raw tap rows. `current_weekly_streak`/
+    `longest_weekly_streak` track consecutive ISO weeks with at least one check-in —
+    independent of the daily streak, which resets if a single day is missed.
 
     Earned badges are persisted at the moment they're first crossed (`earned_at` timestamp,
     see `app/models/member_badge.py`) rather than recomputed — the "next" badge in each
@@ -37,6 +39,7 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
     )
     attendance_badges = [b for b in member_badges if b.badge_type == "attendance"]
     streak_badges = [b for b in member_badges if b.badge_type == "streak"]
+    weekly_streak_badges = [b for b in member_badges if b.badge_type == "weekly_streak"]
 
     return MemberOut(
         id=member.id,
@@ -44,6 +47,8 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
         points_balance=member.points_balance,
         current_streak=member.current_streak,
         longest_streak=member.longest_streak,
+        current_weekly_streak=member.current_weekly_streak,
+        longest_weekly_streak=member.longest_weekly_streak,
         level=member.level,
         xp=member.xp,
         xp_to_next=xp_to_next_level(member.xp, member.level),
@@ -56,8 +61,10 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
         member_since=member.created_at,
         attendance_badges=attendance_badges,
         streak_badges=streak_badges,
+        weekly_streak_badges=weekly_streak_badges,
         next_attendance_badge=next_badge(ATTENDANCE_BADGES, total_visits),
         next_streak_badge=next_badge(STREAK_BADGES, member.longest_streak),
+        next_weekly_streak_badge=next_badge(WEEKLY_STREAK_BADGES, member.longest_weekly_streak),
     )
 
 
@@ -68,9 +75,9 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
 )
 def get_member_badges(member_id: int, db: Session = Depends(get_db)):
     """
-    Every badge that exists (attendance + streak), each flagged earned or not for this
-    member — unlike GET /members/{id}, which only returns earned badges plus the single
-    next one per category. Powers the "show all badges" gallery page.
+    Every badge that exists (attendance + streak + weekly_streak), each flagged earned or
+    not for this member — unlike GET /members/{id}, which only returns earned badges plus
+    the single next one per category. Powers the "show all badges" gallery page.
     """
     member = db.get(Member, member_id)
     if member is None:
@@ -99,6 +106,8 @@ def get_member_badges(member_id: int, db: Session = Depends(get_db)):
             )
         return entries
 
-    return build("attendance", ATTENDANCE_BADGES, total_visits) + build(
-        "streak", STREAK_BADGES, member.longest_streak
+    return (
+        build("attendance", ATTENDANCE_BADGES, total_visits)
+        + build("streak", STREAK_BADGES, member.longest_streak)
+        + build("weekly_streak", WEEKLY_STREAK_BADGES, member.longest_weekly_streak)
     )

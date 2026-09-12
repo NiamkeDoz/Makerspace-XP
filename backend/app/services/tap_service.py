@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.badges import ATTENDANCE_BADGES, STREAK_BADGES, newly_crossed
+from app.badges import ATTENDANCE_BADGES, STREAK_BADGES, WEEKLY_STREAK_BADGES, newly_crossed
 from app.models import Member, MemberBadge, Tap, Visit
 from app.rules import points_for_streak
 from app.schemas import TapIn, TapResult
@@ -17,9 +17,15 @@ def _member_snapshot(member: Member, **overrides) -> dict:
         "points_balance": member.points_balance,
         "current_streak": member.current_streak,
         "longest_streak": member.longest_streak,
+        "current_weekly_streak": member.current_weekly_streak,
+        "longest_weekly_streak": member.longest_weekly_streak,
         "level": member.level,
         **overrides,
     }
+
+
+def _week_start(d):
+    return d - timedelta(days=d.weekday())
 
 
 def _award_badges(
@@ -120,6 +126,25 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
     member.last_tap_date = tap_day
     streak_awarded = _award_badges(db, member, "streak", STREAK_BADGES, streak_before, member.longest_streak, tap_time)
 
+    # Weekly streak: consecutive ISO weeks (Mon-Sun) with at least one check-in. Independent
+    # of the daily streak - a member who taps once a week keeps this alive even if the daily
+    # streak resets between visits.
+    tap_week = _week_start(tap_day)
+    if member.last_check_in_week is None:
+        member.current_weekly_streak = 1
+    elif tap_week == member.last_check_in_week:
+        pass  # already checked in this week; no change
+    elif tap_week == member.last_check_in_week + timedelta(days=7):
+        member.current_weekly_streak += 1
+    else:
+        member.current_weekly_streak = 1
+    weekly_streak_before = member.longest_weekly_streak
+    member.longest_weekly_streak = max(member.longest_weekly_streak, member.current_weekly_streak)
+    member.last_check_in_week = tap_week
+    weekly_streak_awarded = _award_badges(
+        db, member, "weekly_streak", WEEKLY_STREAK_BADGES, weekly_streak_before, member.longest_weekly_streak, tap_time
+    )
+
     points = points_for_streak(member.current_streak)
     member.points_balance += points
 
@@ -141,5 +166,5 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
         points_awarded=points,
         xp_awarded=xp_earned,
         leveled_up=leveled_up,
-        badges_awarded=attendance_awarded + streak_awarded,
+        badges_awarded=attendance_awarded + streak_awarded + weekly_streak_awarded,
     )

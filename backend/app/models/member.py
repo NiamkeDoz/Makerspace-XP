@@ -15,6 +15,9 @@ class Member(Base):
     points_balance: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     current_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     longest_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    current_weekly_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # consecutive weeks with >=1 check-in
+    longest_weekly_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    last_check_in_week: Mapped[date | None] = mapped_column(Date, nullable=True)  # Monday of the ISO week of the last check-in
     xp: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # earned since last prestige; drives level
     level: Mapped[int] = mapped_column(Integer, default=1, nullable=False)
     lifetime_xp: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # survives prestige resets

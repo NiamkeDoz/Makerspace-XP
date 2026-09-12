@@ -42,6 +42,10 @@ export function MemberDashboard() {
   }
 
   const streakProgress = member && member.longest_streak > 0 ? Math.min(member.current_streak / member.longest_streak, 1) * 100 : 0
+  const weeklyStreakProgress =
+    member && member.longest_weekly_streak > 0
+      ? Math.min(member.current_weekly_streak / member.longest_weekly_streak, 1) * 100
+      : 0
   const xpProgress = member ? (member.xp_for_level === null ? 100 : (member.xp_into_level / member.xp_for_level) * 100) : 0
 
   return (
@@ -118,6 +122,25 @@ export function MemberDashboard() {
             </div>
           </div>
 
+          <div className="mb-4 rounded-xl bg-neutral-900 px-5 py-4">
+            <div className="mb-2 flex items-center justify-between text-sm text-neutral-400">
+              <span>Weekly streak</span>
+              <span>
+                {member.current_weekly_streak}wk
+                {member.longest_weekly_streak > 0 ? ` / best ${member.longest_weekly_streak}wk` : ''}
+              </span>
+            </div>
+            <div className="h-3 overflow-hidden rounded-full bg-neutral-950">
+              <div
+                className="h-full rounded-full bg-sky-500 transition-all duration-500"
+                style={{ width: `${weeklyStreakProgress}%` }}
+              />
+            </div>
+            <p className="mt-2 text-xs text-neutral-500">
+              At least one check-in every week — independent of the daily streak
+            </p>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-neutral-900 px-4 py-3">
               <p className="mb-1 text-xs text-neutral-500">Points balance</p>
@@ -150,12 +173,14 @@ function BadgeRow({ member }: { member: Member }) {
   const earned = [
     ...member.attendance_badges.map((b) => ({ ...b, category: 'attendance' as const })),
     ...member.streak_badges.map((b) => ({ ...b, category: 'streak' as const })),
+    ...member.weekly_streak_badges.map((b) => ({ ...b, category: 'weekly_streak' as const })),
   ].sort((a, b) => new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime())
 
   const next = (
     [
       member.next_attendance_badge && { ...member.next_attendance_badge, category: 'attendance' as const },
       member.next_streak_badge && { ...member.next_streak_badge, category: 'streak' as const },
+      member.next_weekly_streak_badge && { ...member.next_weekly_streak_badge, category: 'weekly_streak' as const },
     ] as const
   ).filter((b): b is NextBadge & { category: BadgeCategory } => b !== null && b !== undefined)
 

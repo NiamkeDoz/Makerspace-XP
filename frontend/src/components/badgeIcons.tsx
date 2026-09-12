@@ -197,6 +197,43 @@ export const STREAK_BADGE_ICONS: Record<string, (p: IconProps) => React.ReactEle
   'Year One': TrophyIcon,
 }
 
+// --- Weekly streak (monthly milestone) badges: a numbered calendar, one per month 1-12 ---
+
+function monthIcon(month: number) {
+  return (p: IconProps) => (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      {...p}
+    >
+      <rect x="3" y="4.5" width="18" height="16" rx="2" />
+      <path d="M3 9.5h18M8 2.5v4M16 2.5v4" />
+      <text x="12" y="17.5" textAnchor="middle" fontSize="9" fontWeight="700" stroke="none" fill="currentColor">
+        {month}
+      </text>
+    </svg>
+  )
+}
+
+export const WEEKLY_STREAK_BADGE_ICONS: Record<string, (p: IconProps) => React.ReactElement> = {
+  '1-Month Streak': monthIcon(1),
+  '2-Month Streak': monthIcon(2),
+  'Quarter Streak': monthIcon(3),
+  '4-Month Streak': monthIcon(4),
+  '5-Month Streak': monthIcon(5),
+  'Half-Year Streak': monthIcon(6),
+  '7-Month Streak': monthIcon(7),
+  '8-Month Streak': monthIcon(8),
+  'Three-Quarter Streak': monthIcon(9),
+  '10-Month Streak': monthIcon(10),
+  '11-Month Streak': monthIcon(11),
+  'Year-Long Streak': monthIcon(12),
+}
+
 export function badgeIcon(name: string) {
-  return ATTENDANCE_BADGE_ICONS[name] ?? STREAK_BADGE_ICONS[name] ?? SparkleIcon
+  return ATTENDANCE_BADGE_ICONS[name] ?? STREAK_BADGE_ICONS[name] ?? WEEKLY_STREAK_BADGE_ICONS[name] ?? SparkleIcon
 }

@@ -83,6 +83,7 @@ export function AllBadgesPage() {
         <div className="flex flex-col gap-8">
           <CategorySection title="Attendance" badges={badges.filter((b) => b.category === 'attendance')} />
           <CategorySection title="Streak" badges={badges.filter((b) => b.category === 'streak')} />
+          <CategorySection title="Weekly Streak" badges={badges.filter((b) => b.category === 'weekly_streak')} />
         </div>
       )}
     </section>
