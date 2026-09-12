@@ -1,4 +1,3 @@
-import { AdminPanel } from '../components/AdminPanel'
 import { Leaderboard } from '../components/Leaderboard'
 import { Occupancy } from '../components/Occupancy'
 import { TapSimulator } from '../components/TapSimulator'
@@ -10,9 +9,6 @@ export function HomePage() {
       <Occupancy />
       <div className="lg:col-span-2">
         <TapSimulator />
-      </div>
-      <div className="lg:col-span-2">
-        <AdminPanel />
       </div>
     </div>
   )

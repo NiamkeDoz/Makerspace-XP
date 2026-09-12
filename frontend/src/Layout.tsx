@@ -33,6 +33,9 @@ export function Layout() {
           <NavLink to="/dashboard" className={navLinkClass}>
             Member Dashboard
           </NavLink>
+          <NavLink to="/admin" className={navLinkClass}>
+            Admin
+          </NavLink>
         </nav>
       </header>
 
