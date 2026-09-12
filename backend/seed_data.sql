@@ -1,6 +1,7 @@
--- Test/demo data for local development. Wipes existing members/taps/visits first.
+-- Test/demo data for local development. Wipes existing members/taps/visits/badges first.
 -- Run with: docker compose exec -T db psql -U makerspace -d makerspace_xp < backend/seed_data.sql
 
+DELETE FROM member_badges;
 DELETE FROM visits;
 DELETE FROM taps;
 DELETE FROM members;
@@ -39,3 +40,23 @@ WHERE m.tag_id IN ('tag-alice','tag-bob','tag-carol','tag-dana','tag-eli','tag-f
 INSERT INTO visits (member_id, check_in, check_in_reader_id, check_out, check_out_reader_id)
 SELECT member_id, timestamp, reader_id, timestamp + interval '45 minutes', reader_id
 FROM taps;
+
+-- Backfill earned badges matching the above stats (mirrors backend/app/badges.py's
+-- threshold tables — keep in sync if those change). earned_at is just "now" here since
+-- this is fixture data, not a real earn moment.
+INSERT INTO member_badges (member_id, badge_type, threshold, name, earned_at)
+SELECT m.id, 'attendance', t.threshold, t.name, now()
+FROM members m
+JOIN (VALUES
+  (1,'First Spark'), (5,'Getting Wired'), (10,'Tinkerer'), (30,'Workbench Regular'),
+  (50,'Fabricator'), (100,'Machinist'), (200,'Master Craftsman'), (300,'Shop Foreman'),
+  (365,'Full Circle'), (500,'Forge Legend'), (750,'Architect of the Space'), (1000,'Founding Spirit')
+) AS t(threshold, name) ON t.threshold <= (SELECT COUNT(*) FROM visits v WHERE v.member_id = m.id);
+
+INSERT INTO member_badges (member_id, badge_type, threshold, name, earned_at)
+SELECT m.id, 'streak', t.threshold, t.name, now()
+FROM members m
+JOIN (VALUES
+  (7,'Momentum'), (14,'Consistency'), (21,'Discipline'), (30,'Habit Formed'),
+  (90,'Locked In'), (180,'Unstoppable'), (270,'Relentless'), (365,'Year One')
+) AS t(threshold, name) ON t.threshold <= m.longest_streak;

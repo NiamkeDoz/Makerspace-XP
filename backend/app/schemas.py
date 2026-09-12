@@ -6,9 +6,15 @@ from pydantic import BaseModel, Field
 class Badge(BaseModel):
     threshold: int
     name: str
+    earned_at: datetime = Field(description="When this badge was first earned (persisted, not recomputed).")
+
+    class Config:
+        from_attributes = True
 
 
-class NextBadge(Badge):
+class NextBadge(BaseModel):
+    threshold: int
+    name: str
     remaining: int = Field(description="How many more (visits or streak-days) until this badge is earned.")
 
 
@@ -30,8 +36,8 @@ class MemberOut(BaseModel):
     last_tap_date: date | None
     total_visits: int = Field(description="Count of check-in/check-out visits, not raw tap rows.")
     member_since: datetime
-    attendance_badges: list[Badge] = Field(description="Attendance milestone badges earned, by total_visits.")
-    streak_badges: list[Badge] = Field(description="Streak milestone badges earned, by longest_streak.")
+    attendance_badges: list[Badge] = Field(description="Attendance milestone badges earned, with earned_at timestamps.")
+    streak_badges: list[Badge] = Field(description="Streak milestone badges earned, with earned_at timestamps.")
     next_attendance_badge: NextBadge | None = Field(description="Next unearned attendance badge, if any remain.")
     next_streak_badge: NextBadge | None = Field(description="Next unearned streak badge, if any remain.")
 
@@ -99,6 +105,7 @@ class TapResult(BaseModel):
     xp_awarded: int = 0
     level: int | None = None
     leveled_up: bool = Field(default=False, description="True if this tap crossed a level threshold.")
+    badges_awarded: list[Badge] = Field(default_factory=list, description="Any badges newly earned by this tap.")
 
 
 class OccupancyEntry(BaseModel):

@@ -1,6 +1,7 @@
-"""Config-driven badge thresholds, derived from existing lifetime stats
-(total_visits, longest_streak) rather than persisted — no migration, no
-risk of badge state drifting from the numbers that define it.
+"""Config-driven badge thresholds. Earned badges are persisted (see
+app/models/member_badge.py) with an earned_at timestamp, detected via
+newly_crossed() at tap-time; next_threshold() derives the not-yet-earned
+badge live from current stats, since that one isn't persisted.
 """
 
 # (threshold in total visits, name) — "Maker" theme, sorted ascending.
@@ -32,12 +33,13 @@ STREAK_BADGES = [
 ]
 
 
-def earned(thresholds: list[tuple[int, str]], value: int) -> list[dict]:
-    return [{"threshold": threshold, "name": name} for threshold, name in thresholds if value >= threshold]
-
-
 def next_threshold(thresholds: list[tuple[int, str]], value: int) -> dict | None:
     for threshold, name in thresholds:
         if value < threshold:
             return {"threshold": threshold, "name": name, "remaining": threshold - value}
     return None
+
+
+def newly_crossed(thresholds: list[tuple[int, str]], before: int, after: int) -> list[tuple[int, str]]:
+    """Thresholds strictly crossed by this update, i.e. not met before but met now."""
+    return [(threshold, name) for threshold, name in thresholds if before < threshold <= after]

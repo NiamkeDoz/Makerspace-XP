@@ -3,10 +3,9 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.badges import ATTENDANCE_BADGES, STREAK_BADGES
-from app.badges import earned as earned_badges
 from app.badges import next_threshold as next_badge
 from app.database import get_db
-from app.models import Member, Visit
+from app.models import Member, MemberBadge, Visit
 from app.schemas import MemberOut
 from app.xp_rules import xp_for_level, xp_into_level, xp_to_next_level
 
@@ -23,14 +22,21 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
     progress bar (`xp_for_level` is `null` at max level). `total_visits` counts closed + open
     check-in/check-out **visits**, not raw tap rows.
 
-    Badges are derived on the fly from `total_visits` (attendance badges) and `longest_streak`
-    (streak badges) rather than stored — see `app/badges.py` for the threshold tables.
+    Earned badges are persisted at the moment they're first crossed (`earned_at` timestamp,
+    see `app/models/member_badge.py`) rather than recomputed — the "next" badge in each
+    category is still derived live from current stats, since it isn't earned yet.
     """
     member = db.get(Member, member_id)
     if member is None:
         raise HTTPException(status_code=404, detail="Member not found")
 
     total_visits = db.query(func.count(Visit.id)).filter(Visit.member_id == member.id).scalar()
+
+    member_badges = (
+        db.query(MemberBadge).filter(MemberBadge.member_id == member.id).order_by(MemberBadge.earned_at.desc()).all()
+    )
+    attendance_badges = [b for b in member_badges if b.badge_type == "attendance"]
+    streak_badges = [b for b in member_badges if b.badge_type == "streak"]
 
     return MemberOut(
         id=member.id,
@@ -48,8 +54,8 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
         last_tap_date=member.last_tap_date,
         total_visits=total_visits,
         member_since=member.created_at,
-        attendance_badges=earned_badges(ATTENDANCE_BADGES, total_visits),
-        streak_badges=earned_badges(STREAK_BADGES, member.longest_streak),
+        attendance_badges=attendance_badges,
+        streak_badges=streak_badges,
         next_attendance_badge=next_badge(ATTENDANCE_BADGES, total_visits),
         next_streak_badge=next_badge(STREAK_BADGES, member.longest_streak),
     )
