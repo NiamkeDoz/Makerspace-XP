@@ -105,6 +105,21 @@ export async function fetchMember(id: number): Promise<Member> {
   return res.json()
 }
 
+export interface CatalogBadge {
+  category: 'attendance' | 'streak'
+  threshold: number
+  name: string
+  earned: boolean
+  earned_at: string | null
+  remaining: number | null
+}
+
+export async function fetchMemberBadges(id: number): Promise<CatalogBadge[]> {
+  const res = await fetch(`${API_BASE_URL}/members/${id}/badges`)
+  if (!res.ok) throw new ApiError(res.status === 404 ? 'Member not found' : 'Failed to load badges', res.status)
+  return res.json()
+}
+
 export interface AdminMember {
   id: number
   tag_id: string

@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { BadgeMedallion } from './BadgeMedallion'
 import { BadgeModal, type BadgeModalData } from './BadgeModal'
 import { fetchMember, type Badge, type Member, type NextBadge } from '../lib/api'
@@ -197,6 +198,13 @@ function BadgeRow({ member }: { member: Member }) {
           />
         ))}
       </div>
+
+      <Link
+        to={`/dashboard/${member.id}/badges`}
+        className="mt-3 inline-block text-xs text-neutral-500 hover:text-neutral-300"
+      >
+        Show more →
+      </Link>
 
       {selected && <BadgeModal badge={selected} onClose={() => setSelected(null)} />}
     </div>

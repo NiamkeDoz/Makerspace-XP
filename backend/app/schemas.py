@@ -18,6 +18,15 @@ class NextBadge(BaseModel):
     remaining: int = Field(description="How many more (visits or streak-days) until this badge is earned.")
 
 
+class CatalogBadge(BaseModel):
+    category: str = Field(description='"attendance" | "streak".')
+    threshold: int
+    name: str
+    earned: bool
+    earned_at: datetime | None = Field(description="Set only when earned.")
+    remaining: int | None = Field(description="Set only when not yet earned.")
+
+
 class MemberOut(BaseModel):
     id: int
     name: str
