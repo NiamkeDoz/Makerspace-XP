@@ -3,3 +3,34 @@
 body {
   @apply bg-neutral-950 text-neutral-100;
 }
+
+@keyframes dock-bounce {
+  0% {
+    transform: translateY(0);
+  }
+  18% {
+    transform: translateY(-28px);
+  }
+  36% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+  64% {
+    transform: translateY(0);
+  }
+  76% {
+    transform: translateY(-6px);
+  }
+  88% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-dock-bounce {
+  animation: dock-bounce 1.4s cubic-bezier(0.28, 0.84, 0.42, 1) 1;
+}

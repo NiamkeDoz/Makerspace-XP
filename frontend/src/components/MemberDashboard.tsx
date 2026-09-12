@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { BadgeMedallion } from './BadgeMedallion'
-import { fetchMember, type Badge, type Member } from '../lib/api'
+import { BadgeModal, type BadgeModalData } from './BadgeModal'
+import { fetchMember, type Badge, type Member, type NextBadge } from '../lib/api'
+import { badgeDescription, type BadgeCategory } from '../lib/badgeDescriptions'
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/)
@@ -142,10 +144,19 @@ export function MemberDashboard() {
 }
 
 function BadgeRow({ member }: { member: Member }) {
-  const earned = [...member.attendance_badges, ...member.streak_badges].sort(
-    (a, b) => new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime(),
-  )
-  const next = [member.next_attendance_badge, member.next_streak_badge].filter((b): b is NonNullable<typeof b> => b !== null)
+  const [selected, setSelected] = useState<BadgeModalData | null>(null)
+
+  const earned = [
+    ...member.attendance_badges.map((b) => ({ ...b, category: 'attendance' as const })),
+    ...member.streak_badges.map((b) => ({ ...b, category: 'streak' as const })),
+  ].sort((a, b) => new Date(b.earned_at).getTime() - new Date(a.earned_at).getTime())
+
+  const next = (
+    [
+      member.next_attendance_badge && { ...member.next_attendance_badge, category: 'attendance' as const },
+      member.next_streak_badge && { ...member.next_streak_badge, category: 'streak' as const },
+    ] as const
+  ).filter((b): b is NextBadge & { category: BadgeCategory } => b !== null && b !== undefined)
 
   if (earned.length === 0 && next.length === 0) return null
 
@@ -153,13 +164,41 @@ function BadgeRow({ member }: { member: Member }) {
     <div className="mt-4">
       <p className="mb-3 text-sm text-neutral-400">Badges</p>
       <div className="flex flex-wrap gap-x-3 gap-y-4">
-        {earned.map((badge: Badge) => (
-          <BadgeMedallion key={badge.name} name={badge.name} earned caption={formatDate(badge.earned_at)} />
+        {earned.map((badge: Badge & { category: BadgeCategory }) => (
+          <BadgeMedallion
+            key={badge.name}
+            name={badge.name}
+            earned
+            caption={formatDate(badge.earned_at)}
+            onClick={() =>
+              setSelected({
+                name: badge.name,
+                earned: true,
+                description: badgeDescription(badge.category, badge.threshold),
+                caption: formatDate(badge.earned_at),
+              })
+            }
+          />
         ))}
         {next.map((badge) => (
-          <BadgeMedallion key={badge.name} name={badge.name} earned={false} caption={`${badge.remaining} to go`} />
+          <BadgeMedallion
+            key={badge.name}
+            name={badge.name}
+            earned={false}
+            caption={`${badge.remaining} to go`}
+            onClick={() =>
+              setSelected({
+                name: badge.name,
+                earned: false,
+                description: badgeDescription(badge.category, badge.threshold),
+                caption: `${badge.remaining} to go`,
+              })
+            }
+          />
         ))}
       </div>
+
+      {selected && <BadgeModal badge={selected} onClose={() => setSelected(null)} />}
     </div>
   )
 }
