@@ -2,6 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from app.badges import ATTENDANCE_BADGES, STREAK_BADGES
+from app.badges import earned as earned_badges
+from app.badges import next_threshold as next_badge
 from app.database import get_db
 from app.models import Member, Visit
 from app.schemas import MemberOut
@@ -19,6 +22,9 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
     prestige resets. `xp_into_level`/`xp_for_level` are the numerator/denominator for a level
     progress bar (`xp_for_level` is `null` at max level). `total_visits` counts closed + open
     check-in/check-out **visits**, not raw tap rows.
+
+    Badges are derived on the fly from `total_visits` (attendance badges) and `longest_streak`
+    (streak badges) rather than stored — see `app/badges.py` for the threshold tables.
     """
     member = db.get(Member, member_id)
     if member is None:
@@ -42,4 +48,8 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
         last_tap_date=member.last_tap_date,
         total_visits=total_visits,
         member_since=member.created_at,
+        attendance_badges=earned_badges(ATTENDANCE_BADGES, total_visits),
+        streak_badges=earned_badges(STREAK_BADGES, member.longest_streak),
+        next_attendance_badge=next_badge(ATTENDANCE_BADGES, total_visits),
+        next_streak_badge=next_badge(STREAK_BADGES, member.longest_streak),
     )

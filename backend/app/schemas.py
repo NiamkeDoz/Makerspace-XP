@@ -3,6 +3,15 @@ from datetime import date, datetime
 from pydantic import BaseModel, Field
 
 
+class Badge(BaseModel):
+    threshold: int
+    name: str
+
+
+class NextBadge(Badge):
+    remaining: int = Field(description="How many more (visits or streak-days) until this badge is earned.")
+
+
 class MemberOut(BaseModel):
     id: int
     name: str
@@ -21,6 +30,10 @@ class MemberOut(BaseModel):
     last_tap_date: date | None
     total_visits: int = Field(description="Count of check-in/check-out visits, not raw tap rows.")
     member_since: datetime
+    attendance_badges: list[Badge] = Field(description="Attendance milestone badges earned, by total_visits.")
+    streak_badges: list[Badge] = Field(description="Streak milestone badges earned, by longest_streak.")
+    next_attendance_badge: NextBadge | None = Field(description="Next unearned attendance badge, if any remain.")
+    next_streak_badge: NextBadge | None = Field(description="Next unearned streak badge, if any remain.")
 
     class Config:
         from_attributes = True

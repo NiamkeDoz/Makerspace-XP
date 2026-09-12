@@ -33,6 +33,15 @@ export async function submitTap(tagId: string, readerId: string, name?: string):
   return res.json()
 }
 
+export interface Badge {
+  threshold: number
+  name: string
+}
+
+export interface NextBadge extends Badge {
+  remaining: number
+}
+
 export interface Member {
   id: number
   name: string
@@ -49,6 +58,10 @@ export interface Member {
   last_tap_date: string | null
   total_visits: number
   member_since: string
+  attendance_badges: Badge[]
+  streak_badges: Badge[]
+  next_attendance_badge: NextBadge | null
+  next_streak_badge: NextBadge | null
 }
 
 export interface LeaderboardEntry {

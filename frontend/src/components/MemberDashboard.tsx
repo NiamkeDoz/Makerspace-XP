@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { fetchMember, type Member } from '../lib/api'
+import { fetchMember, type Badge, type Member } from '../lib/api'
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/)
@@ -132,8 +132,43 @@ export function MemberDashboard() {
               <p className="text-2xl font-semibold">{member.last_tap_date ? formatDate(member.last_tap_date) : '—'}</p>
             </div>
           </div>
+
+          <BadgeRow member={member} />
         </div>
       )}
     </section>
+  )
+}
+
+function BadgeRow({ member }: { member: Member }) {
+  const earned = [...member.attendance_badges, ...member.streak_badges].sort((a, b) => b.threshold - a.threshold)
+  const next = [member.next_attendance_badge, member.next_streak_badge].filter((b): b is NonNullable<typeof b> => b !== null)
+
+  if (earned.length === 0 && next.length === 0) return null
+
+  return (
+    <div className="mt-4">
+      <p className="mb-2 text-sm text-neutral-400">Badges</p>
+      <div className="flex flex-wrap gap-2">
+        {earned.map((badge: Badge) => (
+          <span
+            key={badge.name}
+            className="rounded-lg bg-amber-950 px-3 py-1.5 text-xs font-medium text-amber-400"
+            title={`Earned at ${badge.threshold}`}
+          >
+            {badge.name}
+          </span>
+        ))}
+        {next.map((badge) => (
+          <span
+            key={badge.name}
+            className="rounded-lg border border-dashed border-neutral-800 px-3 py-1.5 text-xs text-neutral-500"
+            title={`${badge.remaining} more to unlock`}
+          >
+            {badge.name} · {badge.remaining} to go
+          </span>
+        ))}
+      </div>
+    </div>
   )
 }
