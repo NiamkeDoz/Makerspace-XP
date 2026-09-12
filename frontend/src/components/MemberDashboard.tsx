@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { BadgeMedallion } from './BadgeMedallion'
 import { fetchMember, type Badge, type Member } from '../lib/api'
 
 function initials(name: string): string {
@@ -148,25 +149,13 @@ function BadgeRow({ member }: { member: Member }) {
 
   return (
     <div className="mt-4">
-      <p className="mb-2 text-sm text-neutral-400">Badges</p>
-      <div className="flex flex-wrap gap-2">
+      <p className="mb-3 text-sm text-neutral-400">Badges</p>
+      <div className="flex flex-wrap gap-x-3 gap-y-4">
         {earned.map((badge: Badge) => (
-          <span
-            key={badge.name}
-            className="rounded-lg bg-amber-950 px-3 py-1.5 text-xs font-medium text-amber-400"
-            title={`Earned at ${badge.threshold}`}
-          >
-            {badge.name}
-          </span>
+          <BadgeMedallion key={badge.name} name={badge.name} earned />
         ))}
         {next.map((badge) => (
-          <span
-            key={badge.name}
-            className="rounded-lg border border-dashed border-neutral-800 px-3 py-1.5 text-xs text-neutral-500"
-            title={`${badge.remaining} more to unlock`}
-          >
-            {badge.name} · {badge.remaining} to go
-          </span>
+          <BadgeMedallion key={badge.name} name={badge.name} earned={false} caption={`${badge.remaining} to go`} />
         ))}
       </div>
     </div>
