@@ -153,62 +153,64 @@ export function AdminPanel() {
       {members && members.length === 0 && <p className="text-sm text-neutral-400">No members yet.</p>}
 
       {members && members.length > 0 && (
-        <table className="w-full border-collapse text-left text-sm">
-          <thead>
-            <tr className="border-b border-neutral-800 text-neutral-400">
-              <th className="py-2 pr-2 font-medium">Name</th>
-              <th className="py-2 pr-2 font-medium">Tag</th>
-              <th className="py-2 pr-2 font-medium">Points</th>
-              <th className="py-2 pr-2 font-medium">Streak</th>
-              <th className="py-2 font-medium"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {members.map((member) => {
-              const edit = editFor(member)
-              return (
-                <tr key={member.id} className="border-b border-neutral-900">
-                  <td className="py-2 pr-2">{member.name}</td>
-                  <td className="py-2 pr-2 text-neutral-500">{member.tag_id}</td>
-                  <td className="py-2 pr-2">
-                    <input
-                      type="number"
-                      value={edit.points_balance}
-                      onChange={(e) =>
-                        setEdits((prev) => ({
-                          ...prev,
-                          [member.id]: { ...editFor(member), points_balance: e.target.value },
-                        }))
-                      }
-                      className="w-20 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm outline-none focus:border-neutral-500"
-                    />
-                  </td>
-                  <td className="py-2 pr-2">
-                    <input
-                      type="number"
-                      value={edit.current_streak}
-                      onChange={(e) =>
-                        setEdits((prev) => ({
-                          ...prev,
-                          [member.id]: { ...editFor(member), current_streak: e.target.value },
-                        }))
-                      }
-                      className="w-16 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm outline-none focus:border-neutral-500"
-                    />
-                  </td>
-                  <td className="py-2">
-                    <button
-                      onClick={() => handleAdjust(member)}
-                      className="rounded bg-neutral-800 px-2 py-1 text-xs font-medium hover:bg-neutral-700"
-                    >
-                      Save
-                    </button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[520px] border-collapse text-left text-sm">
+            <thead>
+              <tr className="border-b border-neutral-800 text-neutral-400">
+                <th className="py-2 pr-2 font-medium">Name</th>
+                <th className="py-2 pr-2 font-medium">Tag</th>
+                <th className="py-2 pr-2 font-medium">Points</th>
+                <th className="py-2 pr-2 font-medium">Streak</th>
+                <th className="py-2 font-medium"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {members.map((member) => {
+                const edit = editFor(member)
+                return (
+                  <tr key={member.id} className="border-b border-neutral-900">
+                    <td className="py-2 pr-2">{member.name}</td>
+                    <td className="py-2 pr-2 text-neutral-500">{member.tag_id}</td>
+                    <td className="py-2 pr-2">
+                      <input
+                        type="number"
+                        value={edit.points_balance}
+                        onChange={(e) =>
+                          setEdits((prev) => ({
+                            ...prev,
+                            [member.id]: { ...editFor(member), points_balance: e.target.value },
+                          }))
+                        }
+                        className="w-20 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm outline-none focus:border-neutral-500"
+                      />
+                    </td>
+                    <td className="py-2 pr-2">
+                      <input
+                        type="number"
+                        value={edit.current_streak}
+                        onChange={(e) =>
+                          setEdits((prev) => ({
+                            ...prev,
+                            [member.id]: { ...editFor(member), current_streak: e.target.value },
+                          }))
+                        }
+                        className="w-16 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm outline-none focus:border-neutral-500"
+                      />
+                    </td>
+                    <td className="py-2">
+                      <button
+                        onClick={() => handleAdjust(member)}
+                        className="rounded bg-neutral-800 px-2 py-1 text-xs font-medium hover:bg-neutral-700"
+                      >
+                        Save
+                      </button>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
     </section>
   )

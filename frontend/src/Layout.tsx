@@ -15,7 +15,7 @@ export function Layout() {
   return (
     <div className="min-h-screen px-4 py-10">
       <header className="mb-8 flex flex-col items-center gap-3 text-center">
-        <h1 className="text-4xl font-semibold tracking-tight">Makerspace XP</h1>
+        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Makerspace XP</h1>
         <div className="flex items-center gap-2 text-sm">
           <span
             className={`h-2 w-2 rounded-full ${
@@ -26,7 +26,7 @@ export function Layout() {
             {apiOnline === null ? 'Checking API…' : apiOnline ? 'API online' : 'API unreachable'}
           </span>
         </div>
-        <nav className="flex gap-1 rounded-lg border border-neutral-800 p-1">
+        <nav className="flex flex-wrap justify-center gap-1 rounded-lg border border-neutral-800 p-1">
           <NavLink to="/" end className={navLinkClass}>
             Home
           </NavLink>
