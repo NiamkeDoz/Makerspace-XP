@@ -36,7 +36,7 @@ export function Layout() {
         </nav>
       </header>
 
-      <main className="mx-auto flex max-w-2xl flex-col items-center gap-10">
+      <main className="mx-auto flex max-w-6xl flex-col items-center gap-10">
         <Outlet />
       </main>
     </div>

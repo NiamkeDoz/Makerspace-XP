@@ -68,7 +68,7 @@ export function AllBadgesPage() {
   }, [memberId])
 
   return (
-    <section className="w-full max-w-lg">
+    <section className="w-full max-w-3xl">
       <Link to="/dashboard" className="mb-3 inline-block text-sm text-neutral-400 hover:text-neutral-200">
         ← Back to dashboard
       </Link>

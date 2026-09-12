@@ -52,7 +52,7 @@ export function TapSimulator() {
   }
 
   return (
-    <section className="w-full max-w-lg">
+    <section className="w-full max-w-2xl">
       <h2 className="mb-1 text-lg font-semibold tracking-tight">Tap Simulator</h2>
       <p className="mb-3 text-xs text-neutral-500">
         Stands in for the ESP32 + PN532 reader, which isn't assembled yet.

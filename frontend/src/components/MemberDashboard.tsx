@@ -49,7 +49,7 @@ export function MemberDashboard() {
   const xpProgress = member ? (member.xp_for_level === null ? 100 : (member.xp_into_level / member.xp_for_level) * 100) : 0
 
   return (
-    <section className="w-full max-w-lg">
+    <section className="w-full max-w-xl">
       <h2 className="mb-3 text-lg font-semibold tracking-tight">Member Dashboard</h2>
 
       <form onSubmit={handleSubmit} className="flex gap-2">

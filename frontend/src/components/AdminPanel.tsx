@@ -93,7 +93,7 @@ export function AdminPanel() {
 
   if (!token) {
     return (
-      <section className="w-full max-w-lg">
+      <section className="w-full max-w-2xl">
         <h2 className="mb-3 text-lg font-semibold tracking-tight">Admin</h2>
         <form onSubmit={handleTokenSubmit} className="flex gap-2">
           <input
@@ -116,7 +116,7 @@ export function AdminPanel() {
   }
 
   return (
-    <section className="w-full max-w-2xl">
+    <section className="w-full">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold tracking-tight">Admin</h2>
         <button onClick={handleLogout} className="text-sm text-neutral-400 hover:text-neutral-200">

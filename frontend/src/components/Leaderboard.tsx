@@ -12,7 +12,7 @@ export function Leaderboard() {
   }, [])
 
   return (
-    <section className="w-full max-w-lg">
+    <section className="w-full">
       <h2 className="mb-3 text-lg font-semibold tracking-tight">Leaderboard</h2>
 
       {error && <p className="text-sm text-red-400">{error}</p>}

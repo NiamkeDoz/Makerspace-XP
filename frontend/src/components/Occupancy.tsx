@@ -22,7 +22,7 @@ export function Occupancy() {
   }, [])
 
   return (
-    <section className="w-full max-w-lg">
+    <section className="w-full">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-lg font-semibold tracking-tight">Currently In</h2>
         {entries && <span className="text-sm text-neutral-500">{entries.length} here</span>}
