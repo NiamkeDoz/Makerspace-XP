@@ -47,6 +47,14 @@ docker compose exec -T db psql -U makerspace -d makerspace_xp < backend/seed_dat
 
 Wipes existing members/taps and inserts 8 sample members with varied points, streaks, and tap history for testing the leaderboard/dashboard against realistic data.
 
+### Running tests
+
+```bash
+docker compose exec api pytest -v
+```
+
+Backend unit/integration tests live in `backend/tests/`, run against an in-memory SQLite DB (not the dev Postgres container) via a `db` fixture in `conftest.py`. They call `record_tap()` directly rather than going through HTTP, exercising check-in/check-out toggling, all three badge categories (attendance, daily streak, weekly streak), and threshold-crossing/no-double-award logic in `app/badges.py`.
+
 ### Creating a new migration
 
 ```bash
