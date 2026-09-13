@@ -86,7 +86,11 @@ class AdminMemberOut(BaseModel):
 
 class AdminEnrollIn(BaseModel):
     tag_id: str
-    name: str
+    first_name: str
+    last_name: str
+    member_since: date | None = Field(
+        default=None, description="Backdate enrollment (e.g. someone who's attended before getting a tag). Defaults to today."
+    )
 
 
 class AdminAdjustIn(BaseModel):

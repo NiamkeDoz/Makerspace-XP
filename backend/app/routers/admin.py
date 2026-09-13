@@ -1,3 +1,5 @@
+from datetime import datetime, time
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -31,7 +33,9 @@ def list_members(db: Session = Depends(get_db)):
 )
 def enroll_member(body: AdminEnrollIn, db: Session = Depends(get_db)):
     """Enroll a member without a physical tap — e.g. pre-registering someone ahead of time."""
-    member = Member(tag_id=body.tag_id, name=body.name)
+    member = Member(tag_id=body.tag_id, name=f"{body.first_name} {body.last_name}".strip())
+    if body.member_since is not None:
+        member.created_at = datetime.combine(body.member_since, time.min)
     db.add(member)
     try:
         db.commit()

@@ -157,11 +157,19 @@ export async function adminListMembers(token: string): Promise<AdminMember[]> {
   return parseAdminResponse(res)
 }
 
-export async function adminEnrollMember(token: string, tagId: string, name: string): Promise<AdminMember> {
+export async function adminEnrollMember(
+  token: string,
+  member: { tagId: string; firstName: string; lastName: string; memberSince?: string },
+): Promise<AdminMember> {
   const res = await fetch(`${API_BASE_URL}/admin/members`, {
     method: 'POST',
     headers: adminHeaders(token),
-    body: JSON.stringify({ tag_id: tagId, name }),
+    body: JSON.stringify({
+      tag_id: member.tagId,
+      first_name: member.firstName,
+      last_name: member.lastName,
+      member_since: member.memberSince || null,
+    }),
   })
   return parseAdminResponse(res)
 }
