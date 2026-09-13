@@ -54,7 +54,7 @@ export function TapSimulator() {
   return (
     <section className="w-full max-w-2xl">
       <h2 className="mb-1 text-lg font-semibold tracking-tight">Tap Simulator</h2>
-      <p className="mb-3 text-xs text-neutral-500">
+      <p className="mb-3 text-xs text-[var(--text-faint)]">
         Stands in for the ESP32 + PN532 reader, which isn't assembled yet.
       </p>
 
@@ -63,12 +63,12 @@ export function TapSimulator() {
           value={tagId}
           onChange={(e) => setTagId(e.target.value)}
           placeholder="Tag ID"
-          className="w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-neutral-500"
+          className="w-full rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
         />
         <button
           type="submit"
           disabled={loading}
-          className="rounded bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-950 disabled:opacity-50"
+          className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)] disabled:opacity-50"
         >
           Tap
         </button>
@@ -82,7 +82,7 @@ export function TapSimulator() {
             placeholder="Name for new member"
             required
             autoFocus
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-neutral-500"
+            className="w-full rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
           />
           <button
             type="submit"
@@ -98,9 +98,9 @@ export function TapSimulator() {
 
       {result && (
         <div className="mt-3 text-sm">
-          <p className="text-neutral-300">{statusCopy[result.status]}</p>
+          <p style={{ color: 'var(--text)' }}>{statusCopy[result.status]}</p>
           {result.member_id !== null && (
-            <p className="mt-1 text-neutral-500">
+            <p className="mt-1 text-[var(--text-faint)]">
               {result.name} · +{result.points_awarded} pts (balance {result.points_balance}) · streak{' '}
               {result.current_streak}d
             </p>

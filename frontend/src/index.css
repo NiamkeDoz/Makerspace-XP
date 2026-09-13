@@ -1,7 +1,48 @@
 @import "tailwindcss";
 
+:root,
+:root[data-theme="dark"] {
+  --bg: #0a0a0a;
+  --surface: #171717;
+  --surface-2: #0a0a0a;
+  --border: #27272a;
+  --border-strong: #3f3f46;
+  --text: #f5f5f5;
+  --text-muted: #a1a1aa;
+  --text-faint: #71717a;
+  --accent: #f5f5f5;
+  --accent-text: #0a0a0a;
+}
+
+:root[data-theme="light"] {
+  --bg: #ffffff;
+  --surface: #f4f4f5;
+  --surface-2: #e4e4e7;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --text: #18181b;
+  --text-muted: #52525b;
+  --text-faint: #71717a;
+  --accent: #18181b;
+  --accent-text: #ffffff;
+}
+
+:root[data-theme="github"] {
+  --bg: #ffffff;
+  --surface: #f6f8fa;
+  --surface-2: #eaeef2;
+  --border: #d0d7de;
+  --border-strong: #afb8c1;
+  --text: #1f2328;
+  --text-muted: #656d76;
+  --text-faint: #6e7781;
+  --accent: #1f883d;
+  --accent-text: #ffffff;
+}
+
 body {
-  @apply bg-neutral-950 text-neutral-100;
+  background-color: var(--bg);
+  color: var(--text);
 }
 
 @keyframes dock-bounce {

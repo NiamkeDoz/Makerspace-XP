@@ -16,14 +16,14 @@ export function Leaderboard() {
       <h2 className="mb-3 text-lg font-semibold tracking-tight">Leaderboard</h2>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
-      {!error && entries === null && <p className="text-sm text-neutral-400">Loading…</p>}
-      {entries && entries.length === 0 && <p className="text-sm text-neutral-400">No members yet.</p>}
+      {!error && entries === null && <p className="text-sm text-[var(--text-muted)]">Loading…</p>}
+      {entries && entries.length === 0 && <p className="text-sm text-[var(--text-muted)]">No members yet.</p>}
 
       {entries && entries.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[360px] border-collapse text-left text-sm">
             <thead>
-              <tr className="border-b border-neutral-800 text-neutral-400">
+              <tr className="border-b border-[var(--border)] text-[var(--text-muted)]">
                 <th className="py-2 pr-2 font-medium">#</th>
                 <th className="py-2 pr-2 font-medium">Name</th>
                 <th className="py-2 pr-2 font-medium">Points</th>
@@ -32,8 +32,8 @@ export function Leaderboard() {
             </thead>
             <tbody>
               {entries.map((entry) => (
-                <tr key={entry.member_id} className="border-b border-neutral-900">
-                  <td className="py-2 pr-2 text-neutral-400">{entry.rank}</td>
+                <tr key={entry.member_id} className="border-b border-[var(--border)]">
+                  <td className="py-2 pr-2 text-[var(--text-muted)]">{entry.rank}</td>
                   <td className="py-2 pr-2">{entry.name}</td>
                   <td className="py-2 pr-2">{entry.points_balance}</td>
                   <td className="py-2">{entry.current_streak}d</td>

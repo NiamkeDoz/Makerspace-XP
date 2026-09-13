@@ -25,19 +25,19 @@ export function Occupancy() {
     <section className="w-full">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-lg font-semibold tracking-tight">Currently In</h2>
-        {entries && <span className="text-sm text-neutral-500">{entries.length} here</span>}
+        {entries && <span className="text-sm text-[var(--text-faint)]">{entries.length} here</span>}
       </div>
 
       {error && <p className="text-sm text-red-400">{error}</p>}
-      {!error && entries === null && <p className="text-sm text-neutral-400">Loading…</p>}
-      {entries && entries.length === 0 && <p className="text-sm text-neutral-400">Nobody currently checked in.</p>}
+      {!error && entries === null && <p className="text-sm text-[var(--text-muted)]">Loading…</p>}
+      {entries && entries.length === 0 && <p className="text-sm text-[var(--text-muted)]">Nobody currently checked in.</p>}
 
       {entries && entries.length > 0 && (
-        <ul className="flex flex-col divide-y divide-neutral-900">
+        <ul className="flex flex-col divide-y divide-[var(--border)]">
           {entries.map((entry) => (
             <li key={entry.member_id} className="flex items-center justify-between py-2 text-sm">
               <span>{entry.name}</span>
-              <span className="text-neutral-500">since {formatTime(entry.check_in)}</span>
+              <span className="text-[var(--text-faint)]">since {formatTime(entry.check_in)}</span>
             </li>
           ))}
         </ul>

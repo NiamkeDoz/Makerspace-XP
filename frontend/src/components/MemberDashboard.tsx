@@ -59,12 +59,12 @@ export function MemberDashboard() {
           value={idInput}
           onChange={(e) => setIdInput(e.target.value)}
           placeholder="Member ID"
-          className="w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-neutral-500"
+          className="w-full rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
         />
         <button
           type="submit"
           disabled={loading}
-          className="rounded bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-950 disabled:opacity-50"
+          className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)] disabled:opacity-50"
         >
           {loading ? 'Loading…' : 'Look up'}
         </button>
@@ -80,7 +80,7 @@ export function MemberDashboard() {
             </div>
             <div className="flex-1">
               <p className="text-base font-semibold">{member.name}</p>
-              <p className="text-sm text-neutral-500">Member since {formatDate(member.member_since)}</p>
+              <p className="text-sm text-[var(--text-faint)]">Member since {formatDate(member.member_since)}</p>
             </div>
             {member.prestige_count > 0 && (
               <span className="shrink-0 rounded-lg bg-amber-950 px-2.5 py-1 text-xs font-medium text-amber-400">
@@ -89,32 +89,32 @@ export function MemberDashboard() {
             )}
           </div>
 
-          <div className="mb-4 rounded-xl bg-neutral-900 px-5 py-4">
-            <div className="mb-2 flex items-center justify-between text-sm text-neutral-400">
+          <div className="mb-4 rounded-xl bg-[var(--surface)] px-5 py-4">
+            <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
               <span>Level {member.level}</span>
               <span>
                 {member.xp_to_next === null ? 'Max level' : `${member.xp_into_level} / ${member.xp_for_level} xp`}
               </span>
             </div>
-            <div className="h-3 overflow-hidden rounded-full bg-neutral-950">
+            <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
               <div
                 className="h-full rounded-full bg-amber-500 transition-all duration-500"
                 style={{ width: `${xpProgress}%` }}
               />
             </div>
             {member.xp_to_next !== null && (
-              <p className="mt-2 text-xs text-neutral-500">{member.xp_to_next} xp to level {member.level + 1}</p>
+              <p className="mt-2 text-xs text-[var(--text-faint)]">{member.xp_to_next} xp to level {member.level + 1}</p>
             )}
           </div>
 
-          <div className="mb-4 rounded-xl bg-neutral-900 px-5 py-4">
-            <div className="mb-2 flex items-center justify-between text-sm text-neutral-400">
+          <div className="mb-4 rounded-xl bg-[var(--surface)] px-5 py-4">
+            <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
               <span>Current streak</span>
               <span>
                 {member.current_streak}d{member.longest_streak > 0 ? ` / best ${member.longest_streak}d` : ''}
               </span>
             </div>
-            <div className="h-3 overflow-hidden rounded-full bg-neutral-950">
+            <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
               <div
                 className="h-full rounded-full bg-teal-500 transition-all duration-500"
                 style={{ width: `${streakProgress}%` }}
@@ -122,40 +122,40 @@ export function MemberDashboard() {
             </div>
           </div>
 
-          <div className="mb-4 rounded-xl bg-neutral-900 px-5 py-4">
-            <div className="mb-2 flex items-center justify-between text-sm text-neutral-400">
+          <div className="mb-4 rounded-xl bg-[var(--surface)] px-5 py-4">
+            <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
               <span>Weekly streak</span>
               <span>
                 {member.current_weekly_streak}wk
                 {member.longest_weekly_streak > 0 ? ` / best ${member.longest_weekly_streak}wk` : ''}
               </span>
             </div>
-            <div className="h-3 overflow-hidden rounded-full bg-neutral-950">
+            <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
               <div
                 className="h-full rounded-full bg-sky-500 transition-all duration-500"
                 style={{ width: `${weeklyStreakProgress}%` }}
               />
             </div>
-            <p className="mt-2 text-xs text-neutral-500">
+            <p className="mt-2 text-xs text-[var(--text-faint)]">
               At least one check-in every week — independent of the daily streak
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-neutral-900 px-4 py-3">
-              <p className="mb-1 text-xs text-neutral-500">Points balance</p>
+            <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
+              <p className="mb-1 text-xs text-[var(--text-faint)]">Points balance</p>
               <p className="text-2xl font-semibold">{member.points_balance}</p>
             </div>
-            <div className="rounded-xl bg-neutral-900 px-4 py-3">
-              <p className="mb-1 text-xs text-neutral-500">Longest streak</p>
+            <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
+              <p className="mb-1 text-xs text-[var(--text-faint)]">Longest streak</p>
               <p className="text-2xl font-semibold">{member.longest_streak}d</p>
             </div>
-            <div className="rounded-xl bg-neutral-900 px-4 py-3">
-              <p className="mb-1 text-xs text-neutral-500">Total visits</p>
+            <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
+              <p className="mb-1 text-xs text-[var(--text-faint)]">Total visits</p>
               <p className="text-2xl font-semibold">{member.total_visits}</p>
             </div>
-            <div className="rounded-xl bg-neutral-900 px-4 py-3">
-              <p className="mb-1 text-xs text-neutral-500">Last tap</p>
+            <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
+              <p className="mb-1 text-xs text-[var(--text-faint)]">Last tap</p>
               <p className="text-2xl font-semibold">{member.last_tap_date ? formatDate(member.last_tap_date) : '—'}</p>
             </div>
           </div>
@@ -188,7 +188,7 @@ function BadgeRow({ member }: { member: Member }) {
 
   return (
     <div className="mt-4">
-      <p className="mb-3 text-sm text-neutral-400">Badges</p>
+      <p className="mb-3 text-sm text-[var(--text-muted)]">Badges</p>
       <div className="flex flex-wrap gap-x-3 gap-y-4">
         {earned.map((badge: Badge & { category: BadgeCategory }) => (
           <BadgeMedallion
@@ -226,7 +226,7 @@ function BadgeRow({ member }: { member: Member }) {
 
       <Link
         to={`/dashboard/${member.id}/badges`}
-        className="mt-3 inline-block text-xs text-neutral-500 hover:text-neutral-300"
+        className="mt-3 inline-block text-xs text-[var(--text-faint)] hover:text-[var(--text-muted)]"
       >
         Show more →
       </Link>

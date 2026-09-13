@@ -16,8 +16,10 @@ function CategorySection({ title, badges }: { title: string; badges: CatalogBadg
   return (
     <section className="w-full">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-base font-semibold text-neutral-200">{title}</h2>
-        <span className="text-sm text-neutral-500">
+        <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>
+          {title}
+        </h2>
+        <span className="text-sm text-[var(--text-faint)]">
           {earnedCount} / {badges.length}
         </span>
       </div>
@@ -69,15 +71,15 @@ export function AllBadgesPage() {
 
   return (
     <section className="w-full max-w-3xl">
-      <Link to="/dashboard" className="mb-3 inline-block text-sm text-neutral-400 hover:text-neutral-200">
+      <Link to="/dashboard" className="mb-3 inline-block text-sm text-[var(--text-muted)] hover:text-[var(--text)]">
         ← Back to dashboard
       </Link>
 
       <h1 className="mb-1 text-lg font-semibold tracking-tight">All Badges</h1>
-      {member && <p className="mb-6 text-sm text-neutral-500">{member.name}</p>}
+      {member && <p className="mb-6 text-sm text-[var(--text-faint)]">{member.name}</p>}
 
       {error && <p className="text-sm text-red-400">{error}</p>}
-      {!error && badges === null && <p className="text-sm text-neutral-400">Loading…</p>}
+      {!error && badges === null && <p className="text-sm text-[var(--text-muted)]">Loading…</p>}
 
       {badges && (
         <div className="flex flex-col gap-8">

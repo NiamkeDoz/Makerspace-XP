@@ -25,23 +25,30 @@ export function BadgeModal({ badge, onClose }: { badge: BadgeModalData; onClose:
       aria-modal="true"
     >
       <div
-        className="flex w-full max-w-xs flex-col items-center rounded-2xl border border-neutral-800 bg-neutral-900 px-6 pb-6 pt-10 text-center shadow-2xl"
+        className="flex w-full max-w-xs flex-col items-center rounded-2xl border px-6 pb-6 pt-10 text-center shadow-2xl"
+        style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
         onClick={(e) => e.stopPropagation()}
       >
         <BadgeIconCircle name={badge.name} earned={badge.earned} size={140} ringWidth={5} className="animate-dock-bounce" />
 
-        <p className={`mt-5 text-lg font-semibold ${badge.earned ? 'text-amber-400' : 'text-neutral-300'}`}>
+        <p
+          className="mt-5 text-lg font-semibold"
+          style={{ color: badge.earned ? '#f2cf72' : 'var(--text-muted)' }}
+        >
           {badge.name}
         </p>
-        <p className="mt-2 text-sm leading-snug text-neutral-400">{badge.description}</p>
+        <p className="mt-2 text-sm leading-snug text-[var(--text-muted)]">{badge.description}</p>
         {badge.caption && (
-          <p className="mt-3 text-xs text-neutral-600">{badge.earned ? `Earned ${badge.caption}` : badge.caption}</p>
+          <p className="mt-3 text-xs text-[var(--text-faint)]">
+            {badge.earned ? `Earned ${badge.caption}` : badge.caption}
+          </p>
         )}
 
         <button
           type="button"
           onClick={onClose}
-          className="mt-6 rounded-lg bg-neutral-800 px-4 py-1.5 text-sm font-medium text-neutral-300 hover:bg-neutral-700"
+          className="mt-6 rounded-lg px-4 py-1.5 text-sm font-medium hover:opacity-80"
+          style={{ background: 'var(--surface-2)', color: 'var(--text-muted)' }}
         >
           Close
         </button>

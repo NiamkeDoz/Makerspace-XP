@@ -101,11 +101,11 @@ export function AdminPanel() {
             value={tokenInput}
             onChange={(e) => setTokenInput(e.target.value)}
             placeholder="Admin token"
-            className="w-full rounded border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-neutral-500"
+            className="w-full rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
           />
           <button
             type="submit"
-            className="rounded bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-950"
+            className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)]"
           >
             Unlock
           </button>
@@ -119,7 +119,7 @@ export function AdminPanel() {
     <section className="w-full">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold tracking-tight">Admin</h2>
-        <button onClick={handleLogout} className="text-sm text-neutral-400 hover:text-neutral-200">
+        <button onClick={handleLogout} className="text-sm text-[var(--text-muted)] hover:text-[var(--text)]">
           Lock
         </button>
       </div>
@@ -132,31 +132,31 @@ export function AdminPanel() {
           onChange={(e) => setEnrollTagId(e.target.value)}
           placeholder="Tag ID"
           required
-          className="min-w-0 flex-1 rounded border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-neutral-500"
+          className="min-w-0 flex-1 rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
         />
         <input
           value={enrollName}
           onChange={(e) => setEnrollName(e.target.value)}
           placeholder="Name"
           required
-          className="min-w-0 flex-1 rounded border border-neutral-700 bg-neutral-900 px-3 py-1.5 text-sm outline-none focus:border-neutral-500"
+          className="min-w-0 flex-1 rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
         />
         <button
           type="submit"
-          className="rounded bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-950"
+          className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)]"
         >
           Enroll
         </button>
       </form>
 
-      {members === null && <p className="text-sm text-neutral-400">Loading…</p>}
-      {members && members.length === 0 && <p className="text-sm text-neutral-400">No members yet.</p>}
+      {members === null && <p className="text-sm text-[var(--text-muted)]">Loading…</p>}
+      {members && members.length === 0 && <p className="text-sm text-[var(--text-muted)]">No members yet.</p>}
 
       {members && members.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[520px] border-collapse text-left text-sm">
             <thead>
-              <tr className="border-b border-neutral-800 text-neutral-400">
+              <tr className="border-b border-[var(--border)] text-[var(--text-muted)]">
                 <th className="py-2 pr-2 font-medium">Name</th>
                 <th className="py-2 pr-2 font-medium">Tag</th>
                 <th className="py-2 pr-2 font-medium">Points</th>
@@ -168,9 +168,9 @@ export function AdminPanel() {
               {members.map((member) => {
                 const edit = editFor(member)
                 return (
-                  <tr key={member.id} className="border-b border-neutral-900">
+                  <tr key={member.id} className="border-b border-[var(--border)]">
                     <td className="py-2 pr-2">{member.name}</td>
-                    <td className="py-2 pr-2 text-neutral-500">{member.tag_id}</td>
+                    <td className="py-2 pr-2 text-[var(--text-faint)]">{member.tag_id}</td>
                     <td className="py-2 pr-2">
                       <input
                         type="number"
@@ -181,7 +181,7 @@ export function AdminPanel() {
                             [member.id]: { ...editFor(member), points_balance: e.target.value },
                           }))
                         }
-                        className="w-20 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm outline-none focus:border-neutral-500"
+                        className="w-20 rounded border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
                       />
                     </td>
                     <td className="py-2 pr-2">
@@ -194,13 +194,13 @@ export function AdminPanel() {
                             [member.id]: { ...editFor(member), current_streak: e.target.value },
                           }))
                         }
-                        className="w-16 rounded border border-neutral-700 bg-neutral-900 px-2 py-1 text-sm outline-none focus:border-neutral-500"
+                        className="w-16 rounded border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
                       />
                     </td>
                     <td className="py-2">
                       <button
                         onClick={() => handleAdjust(member)}
-                        className="rounded bg-neutral-800 px-2 py-1 text-xs font-medium hover:bg-neutral-700"
+                        className="rounded bg-[var(--surface-2)] px-2 py-1 text-xs font-medium hover:opacity-80"
                       >
                         Save
                       </button>
