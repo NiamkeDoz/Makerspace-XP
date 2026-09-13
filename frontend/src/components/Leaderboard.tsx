@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { fetchLeaderboard, type LeaderboardEntry } from '../lib/api'
+import { useCountUp } from '../lib/useCountUp'
 
 export function Leaderboard() {
   const [entries, setEntries] = useState<LeaderboardEntry[] | null>(null)
@@ -54,32 +55,44 @@ function LeaderboardChart({ entries }: { entries: LeaderboardEntry[] }) {
 
   return (
     <div className="flex flex-col">
-      {entries.map((entry, i) => {
-        const widthPct = (entry.points_balance / maxPoints) * 100
-        return (
-          <div
-            key={entry.member_id}
-            className="group flex items-center gap-3 rounded py-1.5 px-1 -mx-1 hover:bg-[var(--surface)]"
-            tabIndex={0}
-            title={`${entry.name} — ${entry.points_balance} pts, ${entry.current_streak}d streak`}
-          >
-            <span className="w-5 shrink-0 text-right text-xs text-[var(--text-faint)] tabular-nums">
-              {entry.rank}
-            </span>
-            <span className="w-28 shrink-0 truncate text-sm sm:w-36">{entry.name}</span>
-            <div className="h-[18px] flex-1 overflow-hidden rounded-full bg-[var(--surface)]">
-              <div
-                className="h-full rounded-r-[4px] bg-[var(--accent)] transition-[width] duration-700 ease-out group-hover:opacity-80"
-                style={{ width: filled ? `${widthPct}%` : '0%', transitionDelay: `${i * 40}ms` }}
-              />
-            </div>
-            <span className="w-14 shrink-0 text-right text-sm tabular-nums">{entry.points_balance}</span>
-            <span className="w-10 shrink-0 text-right text-xs text-[var(--text-faint)] tabular-nums">
-              {entry.current_streak}d
-            </span>
-          </div>
-        )
-      })}
+      {entries.map((entry, i) => (
+        <LeaderboardBar key={entry.member_id} entry={entry} widthPct={(entry.points_balance / maxPoints) * 100} delay={i * 40} filled={filled} />
+      ))}
+    </div>
+  )
+}
+
+function LeaderboardBar({
+  entry,
+  widthPct,
+  delay,
+  filled,
+}: {
+  entry: LeaderboardEntry
+  widthPct: number
+  delay: number
+  filled: boolean
+}) {
+  const displayPoints = useCountUp(entry.points_balance, { delay, active: filled })
+
+  return (
+    <div
+      className="group flex items-center gap-3 rounded py-1.5 px-1 -mx-1 hover:bg-[var(--surface)]"
+      tabIndex={0}
+      title={`${entry.name} — ${entry.points_balance} pts, ${entry.current_streak}d streak`}
+    >
+      <span className="w-5 shrink-0 text-right text-xs text-[var(--text-faint)] tabular-nums">{entry.rank}</span>
+      <span className="w-28 shrink-0 truncate text-sm sm:w-36">{entry.name}</span>
+      <div className="h-[18px] flex-1 overflow-hidden rounded-full bg-[var(--surface)]">
+        <div
+          className="h-full rounded-r-[4px] bg-[var(--accent)] transition-[width] duration-700 ease-out group-hover:opacity-80"
+          style={{ width: filled ? `${widthPct}%` : '0%', transitionDelay: `${delay}ms` }}
+        />
+      </div>
+      <span className="w-14 shrink-0 text-right text-sm tabular-nums">{displayPoints}</span>
+      <span className="w-10 shrink-0 text-right text-xs text-[var(--text-faint)] tabular-nums">
+        {entry.current_streak}d
+      </span>
     </div>
   )
 }
