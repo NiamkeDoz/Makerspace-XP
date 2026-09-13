@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from app.auth import require_admin
 from app.database import get_db
 from app.models import Member
-from app.schemas import AdminAdjustIn, AdminEnrollIn, AdminMemberOut
+from app.schemas import AdminAdjustIn, AdminEnrollIn, AdminMemberOut, AdminSettingsIn, AdminSettingsOut
+from app.services.settings_service import get_settings
 from app.xp_rules import MAX_LEVEL
 
 # All routes below require an X-Admin-Token header matching the server's ADMIN_TOKEN.
@@ -98,3 +99,21 @@ def prestige_member(member_id: int, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(member)
     return member
+
+
+@router.get("/settings", response_model=AdminSettingsOut, summary="Get tunable settings (admin)")
+def get_app_settings(db: Session = Depends(get_db)):
+    """Currently just the base points/XP awarded per tap-in; more knobs can join this later."""
+    settings = get_settings(db)
+    db.commit()
+    return settings
+
+
+@router.patch("/settings", response_model=AdminSettingsOut, summary="Update tunable settings (admin)")
+def update_app_settings(body: AdminSettingsIn, db: Session = Depends(get_db)):
+    """Changes take effect on the next tap-in; does not retroactively adjust past taps."""
+    settings = get_settings(db)
+    settings.base_points = body.base_points
+    db.commit()
+    db.refresh(settings)
+    return settings

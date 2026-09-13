@@ -20,5 +20,5 @@ def streak_multiplier(streak: int) -> float:
     return multiplier
 
 
-def points_for_streak(streak: int) -> int:
-    return round(BASE_POINTS * streak_multiplier(streak))
+def points_for_streak(streak: int, base_points: int = BASE_POINTS) -> int:
+    return round(base_points * streak_multiplier(streak))

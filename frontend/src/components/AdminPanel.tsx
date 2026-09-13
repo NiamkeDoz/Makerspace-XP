@@ -3,7 +3,9 @@ import {
   ApiError,
   adminAdjustMember,
   adminEnrollMember,
+  adminGetSettings,
   adminListMembers,
+  adminUpdateSettings,
   type AdminMember,
 } from '../lib/api'
 
@@ -22,6 +24,18 @@ export function AdminPanel() {
   const [enrollMemberSince, setEnrollMemberSince] = useState('')
 
   const [edits, setEdits] = useState<Record<number, { points_balance: string; current_streak: string }>>({})
+
+  const [basePoints, setBasePoints] = useState<string>('')
+  const [basePointsSaved, setBasePointsSaved] = useState(false)
+
+  function loadSettings(activeToken: string) {
+    adminGetSettings(activeToken)
+      .then((result) => setBasePoints(String(result.base_points)))
+      .catch(() => {
+        // Surfaced via the shared error banner if the members load also fails; otherwise
+        // leave the field blank rather than blocking the rest of the page.
+      })
+  }
 
   function loadMembers(activeToken: string) {
     adminListMembers(activeToken)
@@ -42,7 +56,10 @@ export function AdminPanel() {
   }
 
   useEffect(() => {
-    if (token) loadMembers(token)
+    if (token) {
+      loadMembers(token)
+      loadSettings(token)
+    }
   }, [token])
 
   function handleTokenSubmit(e: FormEvent) {
@@ -102,6 +119,24 @@ export function AdminPanel() {
     }
   }
 
+  async function handleSaveBasePoints(e: FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setBasePointsSaved(false)
+    const value = Number(basePoints)
+    if (!Number.isFinite(value) || value < 1) {
+      setError('Base points must be a positive number.')
+      return
+    }
+    try {
+      const result = await adminUpdateSettings(token, value)
+      setBasePoints(String(result.base_points))
+      setBasePointsSaved(true)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to update settings.')
+    }
+  }
+
   if (!token) {
     return (
       <section className="w-full max-w-2xl">
@@ -144,6 +179,32 @@ export function AdminPanel() {
       </div>
 
       {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
+
+      <form
+        onSubmit={handleSaveBasePoints}
+        className="mb-6 flex flex-wrap items-end gap-2 rounded-lg border border-[var(--border)] p-3"
+      >
+        <label className="flex flex-col gap-1 text-xs text-[var(--text-faint)]">
+          XP per tap-in (base, before streak multiplier)
+          <input
+            type="number"
+            min={1}
+            value={basePoints}
+            onChange={(e) => {
+              setBasePoints(e.target.value)
+              setBasePointsSaved(false)
+            }}
+            className="w-24 rounded border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
+          />
+        </label>
+        <button
+          type="submit"
+          className="rounded bg-[var(--surface-2)] px-3 py-1.5 text-sm font-medium hover:opacity-80"
+        >
+          Save
+        </button>
+        {basePointsSaved && <span className="text-xs text-[var(--text-muted)]">Saved.</span>}
+      </form>
 
       {showEnrollModal && (
         <EnrollMemberModal

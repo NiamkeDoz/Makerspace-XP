@@ -101,6 +101,17 @@ class AdminAdjustIn(BaseModel):
     )
 
 
+class AdminSettingsOut(BaseModel):
+    base_points: int = Field(description="Points (and XP) awarded for a streak-1 check-in tap; scaled up by the streak multiplier.")
+
+    class Config:
+        from_attributes = True
+
+
+class AdminSettingsIn(BaseModel):
+    base_points: int = Field(ge=1, description="New base points-per-tap value.")
+
+
 class TapIn(BaseModel):
     tag_id: str = Field(description="The NFC tag's unique identifier.")
     reader_id: str = Field(description="Which physical reader/door this tap came from.")

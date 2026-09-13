@@ -194,3 +194,21 @@ export async function adminPrestigeMember(token: string, id: number): Promise<Ad
   })
   return parseAdminResponse(res)
 }
+
+export interface AdminSettings {
+  base_points: number
+}
+
+export async function adminGetSettings(token: string): Promise<AdminSettings> {
+  const res = await fetch(`${API_BASE_URL}/admin/settings`, { headers: adminHeaders(token) })
+  return parseAdminResponse(res)
+}
+
+export async function adminUpdateSettings(token: string, basePoints: number): Promise<AdminSettings> {
+  const res = await fetch(`${API_BASE_URL}/admin/settings`, {
+    method: 'PATCH',
+    headers: adminHeaders(token),
+    body: JSON.stringify({ base_points: basePoints }),
+  })
+  return parseAdminResponse(res)
+}

@@ -7,6 +7,7 @@ from app.badges import ATTENDANCE_BADGES, STREAK_BADGES, WEEKLY_STREAK_BADGES, n
 from app.models import Member, MemberBadge, Tap, Visit
 from app.rules import points_for_streak
 from app.schemas import TapIn, TapResult
+from app.services.settings_service import get_settings
 from app.xp_rules import level_for_xp
 
 
@@ -145,7 +146,8 @@ def record_tap(db: Session, tap_in: TapIn) -> TapResult:
         db, member, "weekly_streak", WEEKLY_STREAK_BADGES, weekly_streak_before, member.longest_weekly_streak, tap_time
     )
 
-    points = points_for_streak(member.current_streak)
+    base_points = get_settings(db).base_points
+    points = points_for_streak(member.current_streak, base_points)
     member.points_balance += points
 
     # Tap-in earns points and XP at the same rate (per the project's XP earning table).
