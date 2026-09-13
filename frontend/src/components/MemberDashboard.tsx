@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState, type FormEvent } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BadgeMedallion } from './BadgeMedallion'
 import { BadgeModal, type BadgeModalData } from './BadgeModal'
-import { fetchMember, type Badge, type Member, type NextBadge } from '../lib/api'
+import { fetchMember, fetchMemberBadges, type Badge, type CatalogBadge, type Member, type NextBadge } from '../lib/api'
 import { badgeDescription, type BadgeCategory } from '../lib/badgeDescriptions'
 
 function initials(name: string): string {
@@ -15,10 +15,38 @@ function formatDate(iso: string): string {
 }
 
 export function MemberDashboard() {
+  const { memberId } = useParams()
+  const navigate = useNavigate()
   const [idInput, setIdInput] = useState('')
   const [member, setMember] = useState<Member | null>(null)
+  const [badges, setBadges] = useState<CatalogBadge[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!memberId) return
+    const id = Number(memberId)
+    if (!Number.isInteger(id) || id <= 0) {
+      setError('Invalid member link.')
+      setMember(null)
+      setBadges(null)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    Promise.all([fetchMember(id), fetchMemberBadges(id)])
+      .then(([memberResult, badgesResult]) => {
+        setMember(memberResult)
+        setBadges(badgesResult)
+      })
+      .catch(() => {
+        setMember(null)
+        setBadges(null)
+        setError('Member not found.')
+      })
+      .finally(() => setLoading(false))
+  }, [memberId])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -26,15 +54,19 @@ export function MemberDashboard() {
     if (!Number.isInteger(id) || id <= 0) {
       setError('Enter a valid member ID.')
       setMember(null)
+      setBadges(null)
       return
     }
 
     setLoading(true)
     setError(null)
     try {
-      setMember(await fetchMember(id))
+      const [memberResult, badgesResult] = await Promise.all([fetchMember(id), fetchMemberBadges(id)])
+      setMember(memberResult)
+      setBadges(badgesResult)
     } catch {
       setMember(null)
+      setBadges(null)
       setError('Member not found.')
     } finally {
       setLoading(false)
@@ -47,29 +79,49 @@ export function MemberDashboard() {
       ? Math.min(member.current_weekly_streak / member.longest_weekly_streak, 1) * 100
       : 0
   const xpProgress = member ? (member.xp_for_level === null ? 100 : (member.xp_into_level / member.xp_for_level) * 100) : 0
+  const earnedBadgeCount = badges ? badges.filter((b) => b.earned).length : 0
+  const totalBadgeCount = badges ? badges.length : 0
+  const badgeProgress = totalBadgeCount > 0 ? (earnedBadgeCount / totalBadgeCount) * 100 : 0
 
   return (
     <section className="w-full max-w-xl">
-      <h2 className="mb-3 text-lg font-semibold tracking-tight">Member Dashboard</h2>
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-lg font-semibold tracking-tight">Member Dashboard</h2>
+        {memberId && (
+          <button
+            onClick={() => {
+              setMember(null)
+              setError(null)
+              navigate('/dashboard')
+            }}
+            className="text-xs text-[var(--text-faint)] hover:text-[var(--text-muted)]"
+          >
+            Look up someone else
+          </button>
+        )}
+      </div>
 
-      <form onSubmit={handleSubmit} className="flex gap-2">
-        <input
-          type="number"
-          min={1}
-          value={idInput}
-          onChange={(e) => setIdInput(e.target.value)}
-          placeholder="Member ID"
-          className="w-full rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
-        />
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)] disabled:opacity-50"
-        >
-          {loading ? 'Loading…' : 'Look up'}
-        </button>
-      </form>
+      {!memberId && (
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <input
+            type="number"
+            min={1}
+            value={idInput}
+            onChange={(e) => setIdInput(e.target.value)}
+            placeholder="Member ID"
+            className="w-full rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)] disabled:opacity-50"
+          >
+            {loading ? 'Loading…' : 'Look up'}
+          </button>
+        </form>
+      )}
 
+      {memberId && loading && <p className="mt-3 text-sm text-[var(--text-muted)]">Loading…</p>}
       {error && <p className="mt-3 text-sm text-red-400">{error}</p>}
 
       {member && (
@@ -160,6 +212,23 @@ export function MemberDashboard() {
             </div>
           </div>
 
+          {badges && totalBadgeCount > 0 && (
+            <div className="mb-4 rounded-xl bg-[var(--surface)] px-5 py-4">
+              <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
+                <span>Badges earned</span>
+                <span>
+                  {earnedBadgeCount} / {totalBadgeCount}
+                </span>
+              </div>
+              <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
+                <div
+                  className="h-full rounded-full bg-amber-500 transition-all duration-500"
+                  style={{ width: `${badgeProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           <BadgeRow member={member} />
         </div>
       )}
@@ -218,6 +287,7 @@ function BadgeRow({ member }: { member: Member }) {
                 earned: false,
                 description: badgeDescription(badge.category, badge.threshold),
                 caption: `${badge.remaining} to go`,
+                progress: { current: badge.threshold - badge.remaining, threshold: badge.threshold },
               })
             }
           />

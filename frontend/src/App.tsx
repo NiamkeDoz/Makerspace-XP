@@ -11,6 +11,7 @@ function App() {
       <Route element={<Layout />}>
         <Route index element={<HomePage />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="dashboard/:memberId" element={<DashboardPage />} />
         <Route path="dashboard/:memberId/badges" element={<AllBadgesPage />} />
         <Route path="admin" element={<AdminPage />} />
       </Route>

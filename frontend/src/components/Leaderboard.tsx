@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { fetchLeaderboard, type LeaderboardEntry } from '../lib/api'
 import { useCountUp } from '../lib/useCountUp'
 
@@ -76,9 +77,9 @@ function LeaderboardBar({
   const displayPoints = useCountUp(entry.points_balance, { delay, active: filled })
 
   return (
-    <div
+    <Link
+      to={`/dashboard/${entry.member_id}`}
       className="group flex items-center gap-3 rounded py-1.5 px-1 -mx-1 hover:bg-[var(--surface)]"
-      tabIndex={0}
       title={`${entry.name} — ${entry.points_balance} pts, ${entry.current_streak}d streak`}
     >
       <span className="w-5 shrink-0 text-right text-xs text-[var(--text-faint)] tabular-nums">{entry.rank}</span>
@@ -93,11 +94,12 @@ function LeaderboardBar({
       <span className="w-10 shrink-0 text-right text-xs text-[var(--text-faint)] tabular-nums">
         {entry.current_streak}d
       </span>
-    </div>
+    </Link>
   )
 }
 
 function LeaderboardTable({ entries }: { entries: LeaderboardEntry[] }) {
+  const navigate = useNavigate()
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-[360px] border-collapse text-left text-sm">
@@ -111,7 +113,11 @@ function LeaderboardTable({ entries }: { entries: LeaderboardEntry[] }) {
         </thead>
         <tbody>
           {entries.map((entry) => (
-            <tr key={entry.member_id} className="border-b border-[var(--border)]">
+            <tr
+              key={entry.member_id}
+              onClick={() => navigate(`/dashboard/${entry.member_id}`)}
+              className="cursor-pointer border-b border-[var(--border)] hover:bg-[var(--surface)]"
+            >
               <td className="py-2 pr-2 text-[var(--text-muted)]">{entry.rank}</td>
               <td className="py-2 pr-2">{entry.name}</td>
               <td className="py-2 pr-2">{entry.points_balance}</td>
