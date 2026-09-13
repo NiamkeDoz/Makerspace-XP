@@ -12,7 +12,7 @@ class Member(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     tag_id: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
     name: Mapped[str] = mapped_column(String, nullable=False)
-    points_balance: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    points_balance: Mapped[int] = mapped_column(Integer, default=0, nullable=False, index=True)
     current_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     longest_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     current_weekly_streak: Mapped[int] = mapped_column(Integer, default=0, nullable=False)  # consecutive weeks with >=1 check-in

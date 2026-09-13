@@ -8,7 +8,7 @@ export function Leaderboard() {
   const [view, setView] = useState<'chart' | 'table'>('chart')
 
   useEffect(() => {
-    fetchLeaderboard()
+    fetchLeaderboard(10)
       .then(setEntries)
       .catch(() => setError('Could not load leaderboard.'))
   }, [])
