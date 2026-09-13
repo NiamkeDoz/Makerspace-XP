@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.badges import ATTENDANCE_BADGES, STREAK_BADGES, WEEKLY_STREAK_BADGES
+from app.badges import ATTENDANCE_BADGES, STATION_BADGES, STREAK_BADGES, WEEKLY_STREAK_BADGES
 from app.badges import next_threshold as next_badge
 from app.database import get_db
 from app.models import Member, MemberBadge, Visit
@@ -75,9 +75,13 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
 )
 def get_member_badges(member_id: int, db: Session = Depends(get_db)):
     """
-    Every badge that exists (attendance + streak + weekly_streak), each flagged earned or
-    not for this member — unlike GET /members/{id}, which only returns earned badges plus
-    the single next one per category. Powers the "show all badges" gallery page.
+    Every badge that exists (attendance + streak + weekly_streak + per-station), each
+    flagged earned or not for this member — unlike GET /members/{id}, which only returns
+    earned badges plus the single next one per category. Powers the "show all badges"
+    gallery page.
+
+    Station badges (laser cutter, 3D printing, etc.) always show as not-yet-earned —
+    nothing records which station a tap was for yet, see Issues/014.
     """
     member = db.get(Member, member_id)
     if member is None:
@@ -106,8 +110,13 @@ def get_member_badges(member_id: int, db: Session = Depends(get_db)):
             )
         return entries
 
+    station_badges: list[CatalogBadge] = []
+    for station, thresholds in STATION_BADGES.items():
+        station_badges += build(f"station_{station}", thresholds, current_value=0)
+
     return (
         build("attendance", ATTENDANCE_BADGES, total_visits)
         + build("streak", STREAK_BADGES, member.longest_streak)
         + build("weekly_streak", WEEKLY_STREAK_BADGES, member.longest_weekly_streak)
+        + station_badges
     )

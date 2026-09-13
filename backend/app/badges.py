@@ -51,6 +51,50 @@ WEEKLY_STREAK_BADGES = [
 ]
 
 
+# (threshold in uses of that station, name) — per-station badges, "maker" theme per craft.
+# NOT YET WIRED UP: nothing currently records which station a tap/visit was for, so these
+# can't be earned yet. Defined here as a placeholder catalog so the names/thresholds are
+# settled ahead of time. See Issues/014 in the Obsidian vault for the tracking work needed.
+STATION_BADGES: dict[str, list[tuple[int, str]]] = {
+    "laser_cutter": [
+        (1, "First Beam"),
+        (10, "Kerf Curious"),
+        (25, "Laser Focused"),
+        (50, "Beam Master"),
+    ],
+    "3d_printing": [
+        (1, "First Layer"),
+        (10, "Print Run"),
+        (25, "Layer by Layer"),
+        (50, "Filament Fanatic"),
+    ],
+    "cricut": [
+        (1, "First Snip"),
+        (10, "Vinyl Veteran"),
+        (25, "Cut It Out"),
+        (50, "Cricut Connoisseur"),
+    ],
+    "resin": [
+        (1, "First Pour"),
+        (10, "Cured & Confident"),
+        (25, "Resin Regular"),
+        (50, "Pour Master"),
+    ],
+    "crochet": [
+        (1, "First Stitch"),
+        (10, "Hook, Line & Sinker"),
+        (25, "Yarn Over Achiever"),
+        (50, "Crochet Legend"),
+    ],
+    "woodshop": [
+        (1, "Sawdust Rookie"),
+        (10, "Board Certified"),
+        (25, "Measure Twice"),
+        (50, "Master Woodwright"),
+    ],
+}
+
+
 def next_threshold(thresholds: list[tuple[int, str]], value: int) -> dict | None:
     for threshold, name in thresholds:
         if value < threshold:

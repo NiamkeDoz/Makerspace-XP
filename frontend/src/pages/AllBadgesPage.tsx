@@ -2,14 +2,22 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { BadgeMedallion } from '../components/BadgeMedallion'
 import { BadgeModal, type BadgeModalData } from '../components/BadgeModal'
-import { badgeDescription, type BadgeCategory } from '../lib/badgeDescriptions'
+import { badgeDescription, STATION_LABELS, type BadgeCategory } from '../lib/badgeDescriptions'
 import { fetchMember, fetchMemberBadges, type CatalogBadge, type Member } from '../lib/api'
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-function CategorySection({ title, badges }: { title: string; badges: CatalogBadge[] }) {
+function CategorySection({
+  title,
+  badges,
+  note,
+}: {
+  title: string
+  badges: CatalogBadge[]
+  note?: string
+}) {
   const [selected, setSelected] = useState<BadgeModalData | null>(null)
   const earnedCount = badges.filter((b) => b.earned).length
 
@@ -18,6 +26,7 @@ function CategorySection({ title, badges }: { title: string; badges: CatalogBadg
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="text-base font-semibold" style={{ color: 'var(--text)' }}>
           {title}
+          {note && <span className="ml-2 text-xs font-normal text-[var(--text-faint)]">{note}</span>}
         </h2>
         <span className="text-sm text-[var(--text-faint)]">
           {earnedCount} / {badges.length}
@@ -75,7 +84,10 @@ export function AllBadgesPage() {
 
   return (
     <section className="w-full max-w-3xl">
-      <Link to="/dashboard" className="mb-3 inline-block text-sm text-[var(--text-muted)] hover:text-[var(--text)]">
+      <Link
+        to={`/dashboard/${memberId}`}
+        className="mb-3 inline-block text-sm text-[var(--text-muted)] hover:text-[var(--text)]"
+      >
         ← Back to dashboard
       </Link>
 
@@ -90,6 +102,18 @@ export function AllBadgesPage() {
           <CategorySection title="Attendance" badges={badges.filter((b) => b.category === 'attendance')} />
           <CategorySection title="Streak" badges={badges.filter((b) => b.category === 'streak')} />
           <CategorySection title="Weekly Streak" badges={badges.filter((b) => b.category === 'weekly_streak')} />
+          {Object.entries(STATION_LABELS).map(([station, label]) => {
+            const stationBadges = badges.filter((b) => b.category === `station_${station}`)
+            if (stationBadges.length === 0) return null
+            return (
+              <CategorySection
+                key={station}
+                title={label}
+                badges={stationBadges}
+                note="Coming soon — not trackable yet"
+              />
+            )
+          })}
         </div>
       )}
     </section>
