@@ -4,6 +4,7 @@ import { BadgeMedallion } from './BadgeMedallion'
 import { BadgeModal, type BadgeModalData } from './BadgeModal'
 import { fetchMember, fetchMemberBadges, type Badge, type CatalogBadge, type Member } from '../lib/api'
 import { badgeDescription, type BadgeCategory } from '../lib/badgeDescriptions'
+import { useCountUp } from '../lib/useCountUp'
 
 function initials(name: string): string {
   const parts = name.trim().split(/\s+/)
@@ -22,6 +23,19 @@ export function MemberDashboard() {
   const [badges, setBadges] = useState<CatalogBadge[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [filled, setFilled] = useState(false)
+
+  useEffect(() => {
+    if (!member) return
+    setFilled(false)
+    // Two rAFs: the first lets the browser paint the 0% state, the second
+    // flips to the real width so the transition actually has something to animate from.
+    const frame1 = requestAnimationFrame(() => {
+      const frame2 = requestAnimationFrame(() => setFilled(true))
+      return () => cancelAnimationFrame(frame2)
+    })
+    return () => cancelAnimationFrame(frame1)
+  }, [member?.id])
 
   useEffect(() => {
     if (!memberId) return
@@ -83,8 +97,16 @@ export function MemberDashboard() {
   const totalBadgeCount = badges ? badges.length : 0
   const badgeProgress = totalBadgeCount > 0 ? (earnedBadgeCount / totalBadgeCount) * 100 : 0
 
+  const xpDisplay = useCountUp(member?.xp_into_level ?? 0, { active: filled, delay: 0 })
+  const streakDisplay = useCountUp(member?.current_streak ?? 0, { active: filled, delay: 80 })
+  const weeklyStreakDisplay = useCountUp(member?.current_weekly_streak ?? 0, { active: filled, delay: 160 })
+  const badgeCountDisplay = useCountUp(earnedBadgeCount, { active: filled, delay: 240 })
+  const pointsDisplay = useCountUp(member?.points_balance ?? 0, { active: filled, delay: 320 })
+  const longestStreakDisplay = useCountUp(member?.longest_streak ?? 0, { active: filled, delay: 360 })
+  const totalVisitsDisplay = useCountUp(member?.total_visits ?? 0, { active: filled, delay: 400 })
+
   return (
-    <section className="w-full max-w-xl">
+    <section className="w-full max-w-3xl">
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold tracking-tight">Member Dashboard</h2>
         {memberId && (
@@ -145,13 +167,13 @@ export function MemberDashboard() {
             <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
               <span>Level {member.level}</span>
               <span>
-                {member.xp_to_next === null ? 'Max level' : `${member.xp_into_level} / ${member.xp_for_level} xp`}
+                {member.xp_to_next === null ? 'Max level' : `${xpDisplay} / ${member.xp_for_level} xp`}
               </span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
               <div
-                className="h-full rounded-full bg-amber-500 transition-all duration-500"
-                style={{ width: `${xpProgress}%` }}
+                className="h-full rounded-full bg-amber-500 transition-all duration-700 ease-out"
+                style={{ width: filled ? `${xpProgress}%` : '0%' }}
               />
             </div>
             {member.xp_to_next !== null && (
@@ -163,13 +185,13 @@ export function MemberDashboard() {
             <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
               <span>Current streak</span>
               <span>
-                {member.current_streak}d{member.longest_streak > 0 ? ` / best ${member.longest_streak}d` : ''}
+                {streakDisplay}d{member.longest_streak > 0 ? ` / best ${member.longest_streak}d` : ''}
               </span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
               <div
-                className="h-full rounded-full bg-teal-500 transition-all duration-500"
-                style={{ width: `${streakProgress}%` }}
+                className="h-full rounded-full bg-teal-500 transition-all duration-700 ease-out"
+                style={{ width: filled ? `${streakProgress}%` : '0%' }}
               />
             </div>
           </div>
@@ -178,14 +200,14 @@ export function MemberDashboard() {
             <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
               <span>Weekly streak</span>
               <span>
-                {member.current_weekly_streak}wk
+                {weeklyStreakDisplay}wk
                 {member.longest_weekly_streak > 0 ? ` / best ${member.longest_weekly_streak}wk` : ''}
               </span>
             </div>
             <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
               <div
-                className="h-full rounded-full bg-sky-500 transition-all duration-500"
-                style={{ width: `${weeklyStreakProgress}%` }}
+                className="h-full rounded-full bg-sky-500 transition-all duration-700 ease-out"
+                style={{ width: filled ? `${weeklyStreakProgress}%` : '0%' }}
               />
             </div>
             <p className="mt-2 text-xs text-[var(--text-faint)]">
@@ -196,15 +218,15 @@ export function MemberDashboard() {
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
               <p className="mb-1 text-xs text-[var(--text-faint)]">Points balance</p>
-              <p className="text-2xl font-semibold">{member.points_balance}</p>
+              <p className="text-2xl font-semibold tabular-nums">{pointsDisplay}</p>
             </div>
             <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
               <p className="mb-1 text-xs text-[var(--text-faint)]">Longest streak</p>
-              <p className="text-2xl font-semibold">{member.longest_streak}d</p>
+              <p className="text-2xl font-semibold tabular-nums">{longestStreakDisplay}d</p>
             </div>
             <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
               <p className="mb-1 text-xs text-[var(--text-faint)]">Total visits</p>
-              <p className="text-2xl font-semibold">{member.total_visits}</p>
+              <p className="text-2xl font-semibold tabular-nums">{totalVisitsDisplay}</p>
             </div>
             <div className="rounded-xl bg-[var(--surface)] px-4 py-3">
               <p className="mb-1 text-xs text-[var(--text-faint)]">Last tap</p>
@@ -213,17 +235,17 @@ export function MemberDashboard() {
           </div>
 
           {badges && totalBadgeCount > 0 && (
-            <div className="mb-4 rounded-xl bg-[var(--surface)] px-5 py-4">
+            <div className="mb-4 mt-3 rounded-xl bg-[var(--surface)] px-5 py-5">
               <div className="mb-2 flex items-center justify-between text-sm text-[var(--text-muted)]">
                 <span>Badges earned</span>
                 <span>
-                  {earnedBadgeCount} / {totalBadgeCount}
+                  {badgeCountDisplay} / {totalBadgeCount}
                 </span>
               </div>
               <div className="h-3 overflow-hidden rounded-full bg-[var(--surface-2)]">
                 <div
-                  className="h-full rounded-full bg-amber-500 transition-all duration-500"
-                  style={{ width: `${badgeProgress}%` }}
+                  className="h-full rounded-full bg-amber-500 transition-all duration-700 ease-out"
+                  style={{ width: filled ? `${badgeProgress}%` : '0%' }}
                 />
               </div>
             </div>
