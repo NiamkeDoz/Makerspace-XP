@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BadgeMedallion } from './BadgeMedallion'
 import { BadgeModal, type BadgeModalData } from './BadgeModal'
-import { fetchMember, fetchMemberBadges, type Badge, type CatalogBadge, type Member, type NextBadge } from '../lib/api'
+import { fetchMember, fetchMemberBadges, type Badge, type CatalogBadge, type Member } from '../lib/api'
 import { badgeDescription, type BadgeCategory } from '../lib/badgeDescriptions'
 
 function initials(name: string): string {
@@ -251,7 +251,7 @@ function BadgeRow({ member }: { member: Member }) {
       member.next_streak_badge && { ...member.next_streak_badge, category: 'streak' as const },
       member.next_weekly_streak_badge && { ...member.next_weekly_streak_badge, category: 'weekly_streak' as const },
     ] as const
-  ).filter((b): b is NextBadge & { category: BadgeCategory } => b !== null && b !== undefined)
+  ).filter((b): b is NonNullable<typeof b> => b !== null && b !== undefined)
 
   if (earned.length === 0 && next.length === 0) return null
 
