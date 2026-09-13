@@ -6,6 +6,7 @@ export interface BadgeModalData {
   earned: boolean
   description: string
   caption?: string
+  progress?: { current: number; threshold: number }
 }
 
 export function BadgeModal({ badge, onClose }: { badge: BadgeModalData; onClose: () => void }) {
@@ -38,6 +39,24 @@ export function BadgeModal({ badge, onClose }: { badge: BadgeModalData; onClose:
           {badge.name}
         </p>
         <p className="mt-2 text-sm leading-snug text-[var(--text-muted)]">{badge.description}</p>
+
+        {!badge.earned && badge.progress && (
+          <div className="mt-4 w-full">
+            <div className="mb-1 flex items-center justify-between text-xs text-[var(--text-faint)]">
+              <span>{badge.progress.current}</span>
+              <span>{badge.progress.threshold}</span>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-[var(--surface-2)]">
+              <div
+                className="h-full rounded-full bg-amber-500 transition-all duration-500"
+                style={{
+                  width: `${Math.min((badge.progress.current / badge.progress.threshold) * 100, 100)}%`,
+                }}
+              />
+            </div>
+          </div>
+        )}
+
         {badge.caption && (
           <p className="mt-3 text-xs text-[var(--text-faint)]">
             {badge.earned ? `Earned ${badge.caption}` : badge.caption}

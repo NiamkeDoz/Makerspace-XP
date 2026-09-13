@@ -38,6 +38,10 @@ function CategorySection({ title, badges }: { title: string; badges: CatalogBadg
                   earned: badge.earned,
                   description: badgeDescription(badge.category as BadgeCategory, badge.threshold),
                   caption,
+                  progress:
+                    !badge.earned && badge.remaining !== null
+                      ? { current: badge.threshold - badge.remaining, threshold: badge.threshold }
+                      : undefined,
                 })
               }
             />
