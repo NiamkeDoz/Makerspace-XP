@@ -39,10 +39,22 @@ export function Leaderboard() {
 
 function LeaderboardChart({ entries }: { entries: LeaderboardEntry[] }) {
   const maxPoints = Math.max(1, ...entries.map((e) => e.points_balance))
+  const [filled, setFilled] = useState(false)
+
+  useEffect(() => {
+    setFilled(false)
+    // Two rAFs: the first lets the browser paint the 0% state, the second
+    // flips to the real width so the transition actually has something to animate from.
+    const frame1 = requestAnimationFrame(() => {
+      const frame2 = requestAnimationFrame(() => setFilled(true))
+      return () => cancelAnimationFrame(frame2)
+    })
+    return () => cancelAnimationFrame(frame1)
+  }, [entries])
 
   return (
     <div className="flex flex-col">
-      {entries.map((entry) => {
+      {entries.map((entry, i) => {
         const widthPct = (entry.points_balance / maxPoints) * 100
         return (
           <div
@@ -57,8 +69,8 @@ function LeaderboardChart({ entries }: { entries: LeaderboardEntry[] }) {
             <span className="w-28 shrink-0 truncate text-sm sm:w-36">{entry.name}</span>
             <div className="h-[18px] flex-1 overflow-hidden rounded-full bg-[var(--surface)]">
               <div
-                className="h-full rounded-r-[4px] bg-[var(--accent)] transition-all duration-500 group-hover:opacity-80"
-                style={{ width: `${widthPct}%` }}
+                className="h-full rounded-r-[4px] bg-[var(--accent)] transition-[width] duration-700 ease-out group-hover:opacity-80"
+                style={{ width: filled ? `${widthPct}%` : '0%', transitionDelay: `${i * 40}ms` }}
               />
             </div>
             <span className="w-14 shrink-0 text-right text-sm tabular-nums">{entry.points_balance}</span>
