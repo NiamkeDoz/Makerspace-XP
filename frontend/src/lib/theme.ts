@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 
-export const THEMES = ['dark', 'light', 'github'] as const
+export const THEMES = ['dark', 'light', 'github', 'meadow', 'nova'] as const
 export type Theme = (typeof THEMES)[number]
 
 export const THEME_LABELS: Record<Theme, string> = {
   dark: 'Dark',
   light: 'Light',
   github: 'GitHub',
+  meadow: 'Meadow',
+  nova: 'Nova',
 }
 
 const STORAGE_KEY = 'theme'

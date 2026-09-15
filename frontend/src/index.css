@@ -40,6 +40,32 @@
   --accent-text: #ffffff;
 }
 
+:root[data-theme="meadow"] {
+  --bg: #171307;
+  --surface: #1f1a0d;
+  --surface-2: #171307;
+  --border: #332b18;
+  --border-strong: #4a3f22;
+  --text: #efe5cd;
+  --text-muted: #bfb495;
+  --text-faint: #8a8267;
+  --accent: #2dd7a8;
+  --accent-text: #171307;
+}
+
+:root[data-theme="nova"] {
+  --bg: #0f0d1a;
+  --surface: #1a1830;
+  --surface-2: #13111f;
+  --border: #2a2745;
+  --border-strong: #3d3960;
+  --text: #f5f5f7;
+  --text-muted: #a8a5c0;
+  --text-faint: #726f8f;
+  --accent: #7c5cfc;
+  --accent-text: #ffffff;
+}
+
 body {
   background-color: var(--bg);
   color: var(--text);

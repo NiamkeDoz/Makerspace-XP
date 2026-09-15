@@ -1,4 +1,8 @@
+import { useEffect, useState } from 'react'
+import { ApiError, adminGetSettings, adminUpdateSettings } from '../lib/api'
 import { THEMES, THEME_LABELS, type Theme } from '../lib/theme'
+
+const TOKEN_STORAGE_KEY = 'admin_token'
 
 interface ThemePanelProps {
   theme: Theme
@@ -47,7 +51,79 @@ export function ThemePanel({ theme, onSelect, onClose }: ThemePanelProps) {
             </button>
           ))}
         </div>
+
+        <BackupsSection />
       </div>
+    </div>
+  )
+}
+
+function BackupsSection() {
+  const [token] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) ?? '')
+  const [enabled, setEnabled] = useState<boolean | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!token) return
+    adminGetSettings(token)
+      .then((settings) => setEnabled(settings.backups_enabled))
+      .catch(() => setError('Could not load backup setting.'))
+  }, [token])
+
+  async function handleToggle() {
+    if (enabled === null) return
+    setSaving(true)
+    setError(null)
+    try {
+      const result = await adminUpdateSettings(token, { backups_enabled: !enabled })
+      setEnabled(result.backups_enabled)
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Failed to update.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return (
+    <div className="mt-2 border-t pt-4" style={{ borderColor: 'var(--border)' }}>
+      <h3 className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>
+        Backups
+      </h3>
+
+      {!token && (
+        <p className="text-xs text-[var(--text-faint)]">Unlock the Admin tab to manage nightly database backups.</p>
+      )}
+
+      {token && enabled === null && !error && <p className="text-xs text-[var(--text-faint)]">Loading…</p>}
+
+      {token && enabled !== null && (
+        <button
+          type="button"
+          onClick={handleToggle}
+          disabled={saving}
+          className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm disabled:opacity-50"
+          style={{ borderColor: 'var(--border)', color: 'var(--text)' }}
+        >
+          <span>Nightly backups</span>
+          <span
+            className="relative h-5 w-9 shrink-0 rounded-full transition-colors"
+            style={{ background: enabled ? 'var(--accent)' : 'var(--surface-2)' }}
+          >
+            <span
+              className="absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform"
+              style={{ transform: enabled ? 'translateX(18px)' : 'translateX(2px)' }}
+            />
+          </span>
+        </button>
+      )}
+
+      <p className="mt-2 text-xs text-[var(--text-faint)]">
+        Off by default. Requires the backup script to be scheduled on the host — see the
+        pre-transfer checklist.
+      </p>
+
+      {error && <p className="mt-2 text-xs text-red-400">{error}</p>}
     </div>
   )
 }
