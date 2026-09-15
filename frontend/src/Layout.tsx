@@ -68,6 +68,9 @@ export function Layout() {
           <NavLink to="/dashboard" className="rounded px-3 py-1.5 text-sm font-medium" style={navLinkStyle}>
             Member Dashboard
           </NavLink>
+          <NavLink to="/wheel" className="rounded px-3 py-1.5 text-sm font-medium" style={navLinkStyle}>
+            Spin the Wheel
+          </NavLink>
           <NavLink to="/admin" className="rounded px-3 py-1.5 text-sm font-medium" style={navLinkStyle}>
             Admin
           </NavLink>

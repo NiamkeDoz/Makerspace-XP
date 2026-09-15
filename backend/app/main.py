@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import admin, leaderboard, members, occupancy, taps
+from app.routers import admin, leaderboard, members, occupancy, taps, wheel
 
 app = FastAPI(
     title="Makerspace XP",
@@ -26,6 +26,7 @@ app.include_router(members.router)
 app.include_router(leaderboard.router)
 app.include_router(admin.router)
 app.include_router(occupancy.router)
+app.include_router(wheel.router)
 
 
 @app.get("/health", summary="Liveness check", tags=["health"])
