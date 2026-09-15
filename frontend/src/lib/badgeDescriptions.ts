@@ -27,3 +27,24 @@ export function badgeDescription(category: string, threshold: number): string {
   }
   return ''
 }
+
+const CATEGORY_LABELS: Record<string, string> = {
+  attendance: 'Attendance',
+  streak: 'Streak',
+  weekly_streak: 'Weekly Streak',
+}
+
+export function categoryLabel(category: string): string {
+  if (CATEGORY_LABELS[category]) return CATEGORY_LABELS[category]
+  if (category.startsWith('station_')) return STATION_LABELS[category.slice('station_'.length)] ?? category
+  return category
+}
+
+// Mirrors the backend's ALL_BADGE_CATALOGS keys exactly — used to populate the "which
+// catalog does this custom badge join" dropdown on the admin custom-badges page.
+export const ALL_BADGE_CATEGORIES: { value: string; label: string }[] = [
+  { value: 'attendance', label: 'Attendance' },
+  { value: 'streak', label: 'Streak' },
+  { value: 'weekly_streak', label: 'Weekly Streak' },
+  ...Object.entries(STATION_LABELS).map(([key, label]) => ({ value: `station_${key}`, label })),
+]

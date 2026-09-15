@@ -171,6 +171,85 @@ export const TrophyIcon = (p: IconProps) =>
     p,
   )
 
+// --- Extra icons, for custom badges (not tied to any built-in badge name) ---
+
+export const HeartIcon = (p: IconProps) =>
+  base(<path d="M12 20.5S3.5 15 3.5 9a4.5 4.5 0 0 1 8.5-2 4.5 4.5 0 0 1 8.5 2c0 6-8.5 11.5-8.5 11.5z" />, p)
+
+export const GiftIcon = (p: IconProps) =>
+  base(
+    <>
+      <rect x="3.5" y="9" width="17" height="12" rx="1.2" />
+      <path d="M3.5 13h17M12 9v12" />
+      <path d="M12 9C9 9 8 7 8 5.5A2.5 2.5 0 0 1 12 4a2.5 2.5 0 0 1 4 1.5C16 7 15 9 12 9z" />
+    </>,
+    p,
+  )
+
+export const MedalIcon = (p: IconProps) =>
+  base(
+    <>
+      <circle cx="12" cy="15" r="6" />
+      <path d="M9.5 10L7 3h3l2 5M14.5 10L17 3h-3l-2 5" />
+      <path d="M12 12.5l1 2 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none" />
+    </>,
+    p,
+  )
+
+export const RocketIcon = (p: IconProps) =>
+  base(
+    <>
+      <path d="M12 2.5c3 1 5 4.5 5 8.5 0 2-1 4-2 5.5l-3 2-3-2c-1-1.5-2-3.5-2-5.5 0-4 2-7.5 5-8.5z" />
+      <circle cx="12" cy="10.5" r="1.7" />
+      <path d="M9 15.5l-2.5 1.5 1-3M15 15.5l2.5 1.5-1-3M10 19.5l2 2 2-2" />
+    </>,
+    p,
+  )
+
+export const BookIcon = (p: IconProps) =>
+  base(
+    <>
+      <path d="M4 4.5C6 3.5 9 3.5 12 4.5v15c-3-1-6-1-8 0V4.5z" />
+      <path d="M20 4.5c-2-1-5-1-8 0v15c3-1 6-1 8 0V4.5z" />
+    </>,
+    p,
+  )
+
+export const PaintbrushIcon = (p: IconProps) =>
+  base(
+    <>
+      <path d="M17.5 2.5c1.5 0 2.5 1 2.5 2.5 0 2-2 3-4 4.5l-3 3-3-3 3-3c1.5-2 2.5-4 4.5-4z" />
+      <path d="M13 9.5L5 17.5c-1 1-1 2.5 0 3.5s2.5 1 3.5 0L16.5 13" />
+    </>,
+    p,
+  )
+
+export const LeafIcon = (p: IconProps) =>
+  base(
+    <>
+      <path d="M20 4C10 4 4 10 4 18v2h2c8 0 14-6 14-16V4z" />
+      <path d="M6 20C10 15 14 11 20 6" />
+    </>,
+    p,
+  )
+
+export const CrownIcon = (p: IconProps) =>
+  base(
+    <>
+      <path d="M4 8l3.5 3L12 5l4.5 6L20 8l-1.5 10h-13L4 8z" />
+      <path d="M6.5 21.5h11" />
+    </>,
+    p,
+  )
+
+export const DiamondIcon = (p: IconProps) => base(<path d="M6 3h12l4 6-10 12L2 9z" />, p)
+
+export const PuzzleIcon = (p: IconProps) =>
+  base(
+    <path d="M9 3.5h3v2a1.8 1.8 0 0 0 3.5 0v-2h3v3h-2a1.8 1.8 0 0 0 0 3.5h2v3h-3a1.8 1.8 0 0 0-3.5 0v3h-3v-3H6a1.8 1.8 0 0 0 0-3.5H4v-3h3a1.8 1.8 0 0 0 0-3.5H4v-3h5v2z" />,
+    p,
+  )
+
 export const ATTENDANCE_BADGE_ICONS: Record<string, (p: IconProps) => React.ReactElement> = {
   'First Spark': SparkleIcon,
   'Getting Wired': PlugIcon,
@@ -234,6 +313,46 @@ export const WEEKLY_STREAK_BADGE_ICONS: Record<string, (p: IconProps) => React.R
   'Year-Long Streak': monthIcon(12),
 }
 
-export function badgeIcon(name: string) {
+// --- Named icon registry: a flat key -> component map, independent of any badge
+// name. Used by custom badges, where an admin picks an icon explicitly rather
+// than it being inferred from the badge's name. ---
+
+export const ICON_REGISTRY: Record<string, (p: IconProps) => React.ReactElement> = {
+  sparkle: SparkleIcon,
+  plug: PlugIcon,
+  wrench: WrenchIcon,
+  toolbox: ToolboxIcon,
+  cog: CogIcon,
+  'gear-dot': GearDotIcon,
+  hammer: HammerIcon,
+  'clipboard-check': ClipboardCheckIcon,
+  target: TargetIcon,
+  anvil: AnvilIcon,
+  compass: CompassIcon,
+  star: StarIcon,
+  'arrow-up-right': ArrowUpRightIcon,
+  'calendar-check': CalendarCheckIcon,
+  shield: ShieldIcon,
+  link: LinkIcon,
+  lock: LockIcon,
+  zap: ZapIcon,
+  flame: FlameIcon,
+  trophy: TrophyIcon,
+  heart: HeartIcon,
+  gift: GiftIcon,
+  medal: MedalIcon,
+  rocket: RocketIcon,
+  book: BookIcon,
+  paintbrush: PaintbrushIcon,
+  leaf: LeafIcon,
+  crown: CrownIcon,
+  diamond: DiamondIcon,
+  puzzle: PuzzleIcon,
+}
+
+export const ICON_KEYS = Object.keys(ICON_REGISTRY)
+
+export function badgeIcon(name: string, iconKey?: string | null) {
+  if (iconKey && ICON_REGISTRY[iconKey]) return ICON_REGISTRY[iconKey]
   return ATTENDANCE_BADGE_ICONS[name] ?? STREAK_BADGE_ICONS[name] ?? WEEKLY_STREAK_BADGE_ICONS[name] ?? SparkleIcon
 }

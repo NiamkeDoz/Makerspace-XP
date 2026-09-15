@@ -4,6 +4,7 @@ import { BadgeIconCircle } from './BadgeIconCircle'
 export interface BadgeModalData {
   name: string
   earned: boolean
+  icon?: string | null
   description: string
   caption?: string
   progress?: { current: number; threshold: number }
@@ -30,7 +31,14 @@ export function BadgeModal({ badge, onClose }: { badge: BadgeModalData; onClose:
         style={{ borderColor: 'var(--border)', background: 'var(--surface)' }}
         onClick={(e) => e.stopPropagation()}
       >
-        <BadgeIconCircle name={badge.name} earned={badge.earned} size={140} ringWidth={5} className="animate-dock-bounce" />
+        <BadgeIconCircle
+          name={badge.name}
+          earned={badge.earned}
+          icon={badge.icon}
+          size={140}
+          ringWidth={5}
+          className="animate-dock-bounce"
+        />
 
         <p
           className="mt-5 text-lg font-semibold"

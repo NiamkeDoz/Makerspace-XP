@@ -95,6 +95,32 @@ STATION_BADGES: dict[str, list[tuple[int, str]]] = {
 }
 
 
+# Every badge category, keyed the same way MemberBadge.badge_type stores them — lets
+# code that needs "all categories" (the full catalog view, admin award/revoke) iterate
+# once instead of hand-listing attendance/streak/weekly_streak/each station separately.
+ALL_BADGE_CATALOGS: dict[str, list[tuple[int, str]]] = {
+    "attendance": ATTENDANCE_BADGES,
+    "streak": STREAK_BADGES,
+    "weekly_streak": WEEKLY_STREAK_BADGES,
+    **{f"station_{station}": thresholds for station, thresholds in STATION_BADGES.items()},
+}
+
+
+def category_catalog(db, category: str) -> tuple[list[tuple[int, str]], dict[int, str], dict[int, str]]:
+    """Built-in thresholds for `category` merged with any admin-created custom badges in
+    it, sorted ascending — plus a {threshold: description} and {threshold: icon} map
+    covering only the custom ones (built-in badges have no stored description/icon;
+    callers fall back to a templated description and name-based icon lookup)."""
+    from app.models import CustomBadge  # local import: avoids a models <-> badges cycle at module load
+
+    static = ALL_BADGE_CATALOGS.get(category, [])
+    custom = db.query(CustomBadge).filter(CustomBadge.category == category).order_by(CustomBadge.threshold).all()
+    merged = sorted(static + [(c.threshold, c.name) for c in custom], key=lambda t: t[0])
+    descriptions = {c.threshold: c.description for c in custom}
+    icons = {c.threshold: c.icon for c in custom}
+    return merged, descriptions, icons
+
+
 def next_threshold(thresholds: list[tuple[int, str]], value: int) -> dict | None:
     for threshold, name in thresholds:
         if value < threshold:

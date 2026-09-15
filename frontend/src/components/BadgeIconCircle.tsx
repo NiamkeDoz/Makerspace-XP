@@ -6,13 +6,14 @@ const LOCKED_RING = 'conic-gradient(from 180deg, #3f3f46, #6b6b73, #52525b, #6b6
 interface BadgeIconCircleProps {
   name: string
   earned: boolean
+  icon?: string | null
   size?: number
   ringWidth?: number
   className?: string
 }
 
-export function BadgeIconCircle({ name, earned, size = 64, ringWidth = 3, className }: BadgeIconCircleProps) {
-  const Icon = badgeIcon(name)
+export function BadgeIconCircle({ name, earned, icon, size = 64, ringWidth = 3, className }: BadgeIconCircleProps) {
+  const Icon = badgeIcon(name, icon)
 
   return (
     <div
