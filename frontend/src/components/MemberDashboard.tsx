@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BadgeMedallion } from './BadgeMedallion'
 import { BadgeModal, type BadgeModalData } from './BadgeModal'
-import { fetchMember, fetchMemberBadges, type Badge, type CatalogBadge, type Member } from '../lib/api'
+import { fetchMember, fetchMemberBadges, fetchMemberIdByTag, type Badge, type CatalogBadge, type Member } from '../lib/api'
 import { badgeDescription, type BadgeCategory } from '../lib/badgeDescriptions'
 import { useCountUp } from '../lib/useCountUp'
 
@@ -12,13 +12,20 @@ function initials(name: string): string {
 }
 
 function formatDate(iso: string): string {
+  // A bare YYYY-MM-DD (no time/timezone, e.g. last_tap_date) is parsed by `new Date()` as
+  // UTC midnight — formatting that in a timezone behind UTC can roll it back a day. Parse
+  // date-only strings as local Y/M/D directly; full ISO datetimes parse fine as-is.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(iso)) {
+    const [y, m, d] = iso.split('-').map(Number)
+    return new Date(y, m - 1, d).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+  }
   return new Date(iso).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 export function MemberDashboard() {
   const { memberId } = useParams()
   const navigate = useNavigate()
-  const [idInput, setIdInput] = useState('')
+  const [tagInput, setTagInput] = useState('')
   const [member, setMember] = useState<Member | null>(null)
   const [badges, setBadges] = useState<CatalogBadge[] | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -64,9 +71,9 @@ export function MemberDashboard() {
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    const id = Number(idInput)
-    if (!Number.isInteger(id) || id <= 0) {
-      setError('Enter a valid member ID.')
+    const tagId = tagInput.trim()
+    if (!tagId) {
+      setError('Enter a tag ID.')
       setMember(null)
       setBadges(null)
       return
@@ -75,14 +82,12 @@ export function MemberDashboard() {
     setLoading(true)
     setError(null)
     try {
-      const [memberResult, badgesResult] = await Promise.all([fetchMember(id), fetchMemberBadges(id)])
-      setMember(memberResult)
-      setBadges(badgesResult)
+      const id = await fetchMemberIdByTag(tagId)
+      navigate(`/dashboard/${id}`)
     } catch {
       setMember(null)
       setBadges(null)
-      setError('Member not found.')
-    } finally {
+      setError('No member with that tag ID.')
       setLoading(false)
     }
   }
@@ -126,11 +131,10 @@ export function MemberDashboard() {
       {!memberId && (
         <form onSubmit={handleSubmit} className="flex gap-2">
           <input
-            type="number"
-            min={1}
-            value={idInput}
-            onChange={(e) => setIdInput(e.target.value)}
-            placeholder="Member ID"
+            type="text"
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            placeholder="Tag ID"
             className="w-full rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm outline-none focus:border-[var(--accent)]"
           />
           <button
@@ -302,12 +306,14 @@ function BadgeRow({ member }: { member: Member }) {
             key={badge.name}
             name={badge.name}
             earned={false}
+            icon={badge.icon}
             caption={`${badge.remaining} to go`}
             onClick={() =>
               setSelected({
                 name: badge.name,
                 earned: false,
-                description: badgeDescription(badge.category, badge.threshold),
+                icon: badge.icon,
+                description: badge.description ?? badgeDescription(badge.category, badge.threshold),
                 caption: `${badge.remaining} to go`,
                 progress: { current: badge.threshold - badge.remaining, threshold: badge.threshold },
               })

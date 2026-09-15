@@ -1,15 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import {
-  ApiError,
-  adminAdjustMember,
-  adminEnrollMember,
-  adminGetSettings,
-  adminListMembers,
-  adminUpdateSettings,
-  type AdminMember,
-} from '../lib/api'
+import { Link } from 'react-router-dom'
+import { ApiError, adminAdjustMember, adminEnrollMember, adminListMembers, type AdminMember } from '../lib/api'
 
 const TOKEN_STORAGE_KEY = 'admin_token'
+const PAGE_SIZE = 25
 
 export function AdminPanel() {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_STORAGE_KEY) ?? '')
@@ -25,17 +19,13 @@ export function AdminPanel() {
 
   const [edits, setEdits] = useState<Record<number, { points_balance: string; current_streak: string }>>({})
 
-  const [basePoints, setBasePoints] = useState<string>('')
-  const [basePointsSaved, setBasePointsSaved] = useState(false)
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(1, Math.ceil((members?.length ?? 0) / PAGE_SIZE))
+  const pagedMembers = members?.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE) ?? []
 
-  function loadSettings(activeToken: string) {
-    adminGetSettings(activeToken)
-      .then((result) => setBasePoints(String(result.base_points)))
-      .catch(() => {
-        // Surfaced via the shared error banner if the members load also fails; otherwise
-        // leave the field blank rather than blocking the rest of the page.
-      })
-  }
+  useEffect(() => {
+    setPage((p) => Math.min(p, totalPages))
+  }, [totalPages])
 
   function loadMembers(activeToken: string) {
     adminListMembers(activeToken)
@@ -56,10 +46,7 @@ export function AdminPanel() {
   }
 
   useEffect(() => {
-    if (token) {
-      loadMembers(token)
-      loadSettings(token)
-    }
+    if (token) loadMembers(token)
   }, [token])
 
   function handleTokenSubmit(e: FormEvent) {
@@ -119,24 +106,6 @@ export function AdminPanel() {
     }
   }
 
-  async function handleSaveBasePoints(e: FormEvent) {
-    e.preventDefault()
-    setError(null)
-    setBasePointsSaved(false)
-    const value = Number(basePoints)
-    if (!Number.isFinite(value) || value < 1) {
-      setError('Base points must be a positive number.')
-      return
-    }
-    try {
-      const result = await adminUpdateSettings(token, value)
-      setBasePoints(String(result.base_points))
-      setBasePointsSaved(true)
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Failed to update settings.')
-    }
-  }
-
   if (!token) {
     return (
       <section className="w-full max-w-2xl">
@@ -166,6 +135,18 @@ export function AdminPanel() {
       <div className="mb-3 flex items-center justify-between">
         <h2 className="text-lg font-semibold tracking-tight">Admin</h2>
         <div className="flex items-center gap-4">
+          <Link
+            to="/admin/xp-settings"
+            className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)]"
+          >
+            XP Settings
+          </Link>
+          <Link
+            to="/admin/custom-badges"
+            className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)]"
+          >
+            Custom Badges
+          </Link>
           <button
             onClick={() => setShowEnrollModal(true)}
             className="rounded bg-[var(--accent)] px-3 py-1.5 text-sm font-medium text-[var(--accent-text)]"
@@ -179,32 +160,6 @@ export function AdminPanel() {
       </div>
 
       {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
-
-      <form
-        onSubmit={handleSaveBasePoints}
-        className="mb-6 flex flex-wrap items-end gap-2 rounded-lg border border-[var(--border)] p-3"
-      >
-        <label className="flex flex-col gap-1 text-xs text-[var(--text-faint)]">
-          XP per tap-in (base, before streak multiplier)
-          <input
-            type="number"
-            min={1}
-            value={basePoints}
-            onChange={(e) => {
-              setBasePoints(e.target.value)
-              setBasePointsSaved(false)
-            }}
-            className="w-24 rounded border border-[var(--border-strong)] bg-[var(--surface)] px-2 py-1 text-sm outline-none focus:border-[var(--accent)]"
-          />
-        </label>
-        <button
-          type="submit"
-          className="rounded bg-[var(--surface-2)] px-3 py-1.5 text-sm font-medium hover:opacity-80"
-        >
-          Save
-        </button>
-        {basePointsSaved && <span className="text-xs text-[var(--text-muted)]">Saved.</span>}
-      </form>
 
       {showEnrollModal && (
         <EnrollMemberModal
@@ -237,7 +192,7 @@ export function AdminPanel() {
               </tr>
             </thead>
             <tbody>
-              {members.map((member) => {
+              {pagedMembers.map((member) => {
                 const edit = editFor(member)
                 return (
                   <tr key={member.id} className="border-b border-[var(--border)]">
@@ -270,18 +225,55 @@ export function AdminPanel() {
                       />
                     </td>
                     <td className="py-2">
-                      <button
-                        onClick={() => handleAdjust(member)}
-                        className="rounded bg-[var(--surface-2)] px-2 py-1 text-xs font-medium hover:opacity-80"
-                      >
-                        Save
-                      </button>
+                      <div className="flex gap-1.5">
+                        <Link
+                          to={`/admin/members/${member.id}`}
+                          className="rounded bg-[var(--accent)] px-2 py-1 text-xs font-medium text-[var(--accent-text)] hover:opacity-80"
+                        >
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleAdjust(member)}
+                          className="rounded bg-[var(--accent)] px-2 py-1 text-xs font-medium text-[var(--accent-text)] hover:opacity-80"
+                        >
+                          Save
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 )
               })}
             </tbody>
           </table>
+
+          {totalPages > 1 && (
+            <div className="mt-3 flex items-center justify-between text-sm">
+              <span className="text-[var(--text-faint)]">
+                {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, members.length)} of {members.length}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="rounded bg-[var(--surface-2)] px-2.5 py-1 text-xs font-medium disabled:opacity-40"
+                >
+                  Prev
+                </button>
+                <span className="text-[var(--text-muted)]">
+                  Page {page} of {totalPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="rounded bg-[var(--surface-2)] px-2.5 py-1 text-xs font-medium disabled:opacity-40"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>

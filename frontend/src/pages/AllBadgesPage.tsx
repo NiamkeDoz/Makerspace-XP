@@ -40,12 +40,14 @@ function CategorySection({
               key={badge.name}
               name={badge.name}
               earned={badge.earned}
+              icon={badge.icon}
               caption={caption}
               onClick={() =>
                 setSelected({
                   name: badge.name,
                   earned: badge.earned,
-                  description: badgeDescription(badge.category as BadgeCategory, badge.threshold),
+                  icon: badge.icon,
+                  description: badge.description ?? badgeDescription(badge.category as BadgeCategory, badge.threshold),
                   caption,
                   progress:
                     !badge.earned && badge.remaining !== null

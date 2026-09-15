@@ -2,14 +2,32 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.badges import ATTENDANCE_BADGES, STATION_BADGES, STREAK_BADGES, WEEKLY_STREAK_BADGES
+from app.badges import STATION_BADGES, category_catalog
 from app.badges import next_threshold as next_badge
 from app.database import get_db
 from app.models import Member, MemberBadge, Visit
-from app.schemas import CatalogBadge, MemberOut
+from app.schemas import CatalogBadge, MemberIdOut, MemberOut
 from app.xp_rules import xp_for_level, xp_into_level, xp_to_next_level
 
 router = APIRouter(prefix="/members", tags=["members"])
+
+
+@router.get(
+    "/by-tag/{tag_id}",
+    response_model=MemberIdOut,
+    summary="Resolve a tag ID to a member ID",
+)
+def get_member_id_by_tag(tag_id: str, db: Session = Depends(get_db)):
+    """
+    Lets the Member Dashboard's lookup form accept a tag ID (what a member actually has
+    on hand) instead of the numeric member ID (an internal detail that keeps climbing as
+    test data accumulates). The frontend resolves the tag here, then navigates to
+    `/dashboard/{id}` as usual.
+    """
+    member = db.query(Member).filter(Member.tag_id == tag_id).one_or_none()
+    if member is None:
+        raise HTTPException(status_code=404, detail="No member with that tag ID")
+    return MemberIdOut(id=member.id)
 
 
 @router.get("/{member_id}", response_model=MemberOut, summary="Get a member's full profile")
@@ -41,6 +59,17 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
     streak_badges = [b for b in member_badges if b.badge_type == "streak"]
     weekly_streak_badges = [b for b in member_badges if b.badge_type == "weekly_streak"]
 
+    attendance_catalog, attendance_descriptions, attendance_icons = category_catalog(db, "attendance")
+    streak_catalog, streak_descriptions, streak_icons = category_catalog(db, "streak")
+    weekly_streak_catalog, weekly_streak_descriptions, weekly_streak_icons = category_catalog(db, "weekly_streak")
+
+    def next_with_description(catalog, descriptions, icons, value):
+        nb = next_badge(catalog, value)
+        if nb is not None:
+            nb["description"] = descriptions.get(nb["threshold"])
+            nb["icon"] = icons.get(nb["threshold"])
+        return nb
+
     return MemberOut(
         id=member.id,
         name=member.name,
@@ -62,9 +91,15 @@ def get_member(member_id: int, db: Session = Depends(get_db)):
         attendance_badges=attendance_badges,
         streak_badges=streak_badges,
         weekly_streak_badges=weekly_streak_badges,
-        next_attendance_badge=next_badge(ATTENDANCE_BADGES, total_visits),
-        next_streak_badge=next_badge(STREAK_BADGES, member.longest_streak),
-        next_weekly_streak_badge=next_badge(WEEKLY_STREAK_BADGES, member.longest_weekly_streak),
+        next_attendance_badge=next_with_description(
+            attendance_catalog, attendance_descriptions, attendance_icons, total_visits
+        ),
+        next_streak_badge=next_with_description(
+            streak_catalog, streak_descriptions, streak_icons, member.longest_streak
+        ),
+        next_weekly_streak_badge=next_with_description(
+            weekly_streak_catalog, weekly_streak_descriptions, weekly_streak_icons, member.longest_weekly_streak
+        ),
     )
 
 
@@ -94,7 +129,8 @@ def get_member_badges(member_id: int, db: Session = Depends(get_db)):
         for b in db.query(MemberBadge).filter(MemberBadge.member_id == member.id).all()
     }
 
-    def build(category: str, thresholds: list[tuple[int, str]], current_value: int) -> list[CatalogBadge]:
+    def build(category: str, current_value: int) -> list[CatalogBadge]:
+        thresholds, descriptions, icons = category_catalog(db, category)
         entries = []
         for threshold, name in thresholds:
             earned_at = earned_at_by_threshold.get((category, threshold))
@@ -106,17 +142,19 @@ def get_member_badges(member_id: int, db: Session = Depends(get_db)):
                     earned=earned_at is not None,
                     earned_at=earned_at,
                     remaining=None if earned_at is not None else max(threshold - current_value, 0),
+                    description=descriptions.get(threshold),
+                    icon=icons.get(threshold),
                 )
             )
         return entries
 
     station_badges: list[CatalogBadge] = []
-    for station, thresholds in STATION_BADGES.items():
-        station_badges += build(f"station_{station}", thresholds, current_value=0)
+    for station in STATION_BADGES:
+        station_badges += build(f"station_{station}", current_value=0)
 
     return (
-        build("attendance", ATTENDANCE_BADGES, total_visits)
-        + build("streak", STREAK_BADGES, member.longest_streak)
-        + build("weekly_streak", WEEKLY_STREAK_BADGES, member.longest_weekly_streak)
+        build("attendance", total_visits)
+        + build("streak", member.longest_streak)
+        + build("weekly_streak", member.longest_weekly_streak)
         + station_badges
     )
