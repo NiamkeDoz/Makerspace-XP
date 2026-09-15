@@ -49,6 +49,7 @@ export function TapSimulator() {
     enrolled: 'New member enrolled and checked in.',
     unknown_tag: 'Unknown tag — enter a name to enroll.',
     checked_out: 'Checked out.',
+    retired_tag: 'This tag was retired — the member it belonged to has since gotten a new card.',
   }
 
   return (
@@ -99,11 +100,14 @@ export function TapSimulator() {
       {result && (
         <div className="mt-3 text-sm">
           <p style={{ color: 'var(--text)' }}>{statusCopy[result.status]}</p>
-          {result.member_id !== null && (
+          {result.member_id !== null && result.status !== 'retired_tag' && (
             <p className="mt-1 text-[var(--text-faint)]">
               {result.name} · +{result.points_awarded} pts (balance {result.points_balance}) · streak{' '}
               {result.current_streak}d
             </p>
+          )}
+          {result.status === 'retired_tag' && (
+            <p className="mt-1 text-[var(--text-faint)]">Previously belonged to {result.name}.</p>
           )}
         </div>
       )}
