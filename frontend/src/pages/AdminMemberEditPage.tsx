@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   ApiError,
@@ -77,7 +77,7 @@ function field(
   label: string,
   key: keyof FormState,
   form: FormState,
-  setForm: (updater: (prev: FormState) => FormState) => void,
+  setForm: Dispatch<SetStateAction<FormState | null>>,
   type: 'text' | 'number' | 'date' = 'number',
 ) {
   return (
@@ -86,7 +86,7 @@ function field(
       <input
         type={type}
         value={form[key]}
-        onChange={(e) => setForm((prev) => ({ ...prev, [key]: e.target.value }))}
+        onChange={(e) => setForm((prev) => (prev ? { ...prev, [key]: e.target.value } : prev))}
         className="rounded border border-[var(--border-strong)] bg-[var(--surface)] px-3 py-1.5 text-sm text-[var(--text)] outline-none focus:border-[var(--accent)]"
       />
     </label>
